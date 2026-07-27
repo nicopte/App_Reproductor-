@@ -11,7 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
 
 export function LoginView() {
-  const { login } = useAuthStore();
+  const { login, register } = useAuthStore();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,9 +26,29 @@ export function LoginView() {
     onError: () => setError('Error al iniciar sesión'),
   });
 
+  const registerMutation = useMutation({
+    mutationFn: () => register(name, email, password),
+    onSuccess: (success) => {
+      if (!success) setError('No se pudo crear la cuenta (¿el email ya está en uso?)');
+    },
+    onError: () => setError('Error al crear la cuenta'),
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (showRegister) {
+      if (!name || !email || !password) {
+        setError('Completa todos los campos');
+        return;
+      }
+      if (password.length < 8) {
+        setError('La contraseña debe tener al menos 8 caracteres');
+        return;
+      }
+      registerMutation.mutate();
+      return;
+    }
     if (!email || !password) {
       setError('Completa todos los campos');
       return;
@@ -75,6 +96,8 @@ export function LoginView() {
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         placeholder="Tu nombre"
                         className="pl-10 h-11"
                         aria-label="Nombre"
@@ -118,9 +141,9 @@ export function LoginView() {
                 <Button
                   type="submit"
                   className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-                  disabled={loginMutation.isPending}
+                  disabled={loginMutation.isPending || registerMutation.isPending}
                 >
-                  {loginMutation.isPending ? (
+                  {(loginMutation.isPending || registerMutation.isPending) ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
                   {showRegister ? 'Crear cuenta' : 'Iniciar sesión'}
