@@ -10,8 +10,6 @@ import { PodcastsView, PodcastDetailView } from '@/components/views/PodcastViews
 import { PlaylistDetailView } from '@/components/views/PlaylistDetailView';
 import { CreatePlaylistView } from '@/components/views/CreatePlaylistView';
 import { CreatePodcastView } from '@/components/views/CreatePodcastView';
-import { ArtistDetailView } from '@/components/views/ArtistDetailView';
-import { AlbumDetailView } from '@/components/views/AlbumDetailView';
 import { LoginView } from '@/components/views/AuthViews';
 import { FavoritesView } from '@/components/views/FavoritesView';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -37,7 +35,7 @@ export default function App() {
       fetch('/api/reproductions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songId: currentSong.id }),
+        body: JSON.stringify({ episodeId: currentSong.id }),
       }).catch(() => {});
     }
     if (!currentSong) hasLogged.current = false;
@@ -65,8 +63,6 @@ export default function App() {
       case 'library': return <LibraryView />;
       case 'podcasts': return <PodcastsView />;
       case 'podcast-detail': return <PodcastDetailView podcastId={viewParams.id || ''} />;
-      case 'artist-detail': return <ArtistDetailView artistId={viewParams.id || ''} />;
-      case 'album-detail': return <AlbumDetailView albumId={viewParams.id || ''} />;
       case 'playlist-detail': return <PlaylistDetailView playlistId={viewParams.id || ''} />;
       case 'create-playlist': return <CreatePlaylistView />;
       case 'create-podcast': return <CreatePodcastView />;

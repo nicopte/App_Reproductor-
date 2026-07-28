@@ -181,7 +181,7 @@ export function PlayerBar() {
                       <p className={cn('text-sm truncate', song.id === currentSong?.id && 'text-primary font-medium')}>
                         {song.title}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">{song.artist?.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{song.podcast?.title}</p>
                     </div>
                     <span className="text-xs text-muted-foreground">{formatDuration(song.duration)}</span>
                   </button>
@@ -222,7 +222,7 @@ export function PlayerBar() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium truncate">{currentSong.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{currentSong.artist?.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{currentSong.podcast?.title}</p>
             </div>
           </button>
 
@@ -262,7 +262,7 @@ export function PlayerBar() {
                 {currentSong.title}
               </button>
               <button className="text-xs text-muted-foreground truncate block hover:underline max-w-[200px]">
-                {currentSong.artist?.name}
+                {currentSong.podcast?.title}
               </button>
             </div>
             <Button

@@ -13,7 +13,7 @@ export async function GET() {
       where: { userId },
       include: {
         _count: {
-          select: { songs: true },
+          select: { episodes: true },
         },
         user: {
           select: { id: true, name: true, avatar: true },

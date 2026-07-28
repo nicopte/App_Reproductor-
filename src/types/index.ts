@@ -8,38 +8,6 @@ export interface User {
   updatedAt: string;
 }
 
-export interface Artist {
-  id: string;
-  name: string;
-  image?: string;
-  bio?: string;
-  songCount?: number;
-  albumCount?: number;
-}
-
-export interface Album {
-  id: string;
-  title: string;
-  image?: string;
-  year?: number;
-  artistId: string;
-  artist?: Artist;
-  songCount?: number;
-}
-
-export interface Song {
-  id: string;
-  title: string;
-  duration: number;
-  url?: string;
-  image?: string;
-  artistId: string;
-  albumId?: string;
-  genre?: string;
-  artist?: Artist;
-  album?: Album;
-}
-
 export interface Playlist {
   id: string;
   title: string;
@@ -48,14 +16,14 @@ export interface Playlist {
   isPublic: boolean;
   userId: string;
   user?: { id: string; name: string; avatar?: string };
-  songCount?: number;
-  songs?: (PlaylistSong & { song: Song })[];
+  episodeCount?: number;
+  episodes?: (PlaylistEpisode & { episode: Episode })[];
 }
 
-export interface PlaylistSong {
+export interface PlaylistEpisode {
   id: string;
   playlistId: string;
-  songId: string;
+  episodeId: string;
   position: number;
   addedAt: string;
 }
@@ -63,20 +31,19 @@ export interface PlaylistSong {
 export interface Favorite {
   id: string;
   userId: string;
-  songId: string;
-  song?: Song;
+  episodeId: string;
+  episode?: Episode;
   createdAt: string;
 }
 
 export interface Reproduction {
   id: string;
   userId: string;
-  songId?: string;
-  episodeId?: string;
+  episodeId: string;
   progress: number;
   completed: boolean;
   createdAt: string;
-  song?: Song;
+  episode?: Episode;
 }
 
 export interface Podcast {
@@ -105,10 +72,13 @@ export interface Category {
   name: string;
 }
 
-export type ViewType = 'home' | 'search' | 'library' | 'podcasts' | 'podcast-detail' | 'artist-detail' | 'album-detail' | 'playlist-detail' | 'create-playlist' | 'create-podcast' | 'favorites' | 'profile' | 'login' | 'register';
+export type ViewType = 'home' | 'search' | 'library' | 'podcasts' | 'podcast-detail' | 'playlist-detail' | 'create-playlist' | 'create-podcast' | 'favorites' | 'profile' | 'login' | 'register';
 
+// El reproductor toma episodios de podcast. Se mantiene el nombre
+// "currentSong"/"playSong" internamente para no tocar decenas de archivos,
+// pero lo que reproduce siempre es un Episode.
 export interface PlayerState {
-  currentSong: Song | null;
+  currentSong: Episode | null;
   isPlaying: boolean;
   currentTime: number;
   volume: number;

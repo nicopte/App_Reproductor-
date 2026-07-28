@@ -57,7 +57,7 @@ export function CreatePlaylistView() {
         <div>
           <h1 className="text-2xl font-bold mb-2">Crear Playlist</h1>
           <p className="text-muted-foreground text-sm">
-            Crea una nueva playlist para organizar tu música
+            Creá una nueva playlist para organizar episodios de podcast
           </p>
         </div>
 

@@ -15,44 +15,26 @@ export async function GET(request: NextRequest) {
 
     const query = q.trim();
 
-    const [songs, artists, albums, podcasts] = await Promise.all([
-      db.song.findMany({
-        where: { title: { contains: query } },
-        take: 20,
-        include: {
-          artist: { select: { id: true, name: true, image: true } },
-          album: { select: { id: true, title: true, image: true } },
-        },
-      }),
-      db.artist.findMany({
-        where: { name: { contains: query } },
-        take: 20,
-        include: {
-          _count: { select: { songs: true, albums: true } },
-        },
-      }),
-      db.album.findMany({
-        where: { title: { contains: query } },
-        take: 20,
-        include: {
-          artist: { select: { id: true, name: true, image: true } },
-          _count: { select: { songs: true } },
-        },
-      }),
+    const [podcasts, episodes] = await Promise.all([
       db.podcast.findMany({
-        where: { title: { contains: query } },
+        where: { title: { contains: query, mode: 'insensitive' } },
         take: 20,
         include: {
           _count: { select: { episodes: true } },
         },
       }),
+      db.episode.findMany({
+        where: { title: { contains: query, mode: 'insensitive' } },
+        take: 20,
+        include: {
+          podcast: { select: { id: true, title: true, image: true } },
+        },
+      }),
     ]);
 
     return NextResponse.json({
-      songs,
-      artists,
-      albums,
       podcasts,
+      episodes,
     });
   } catch (error) {
     console.error('Search error:', error);

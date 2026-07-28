@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Song, ViewType } from '@/types';
+import type { Episode, ViewType } from '@/types';
 
 interface NavigationState {
   currentView: ViewType;
@@ -43,8 +43,8 @@ export const useNavigationStore = create<NavigationState>()(
 );
 
 interface PlayerState {
-  currentSong: Song | null;
-  queue: Song[];
+  currentSong: Episode | null;
+  queue: Episode[];
   queueIndex: number;
   isPlaying: boolean;
   currentTime: number;
@@ -53,7 +53,7 @@ interface PlayerState {
   isMuted: boolean;
   repeat: 'off' | 'all' | 'one';
   shuffle: boolean;
-  playSong: (song: Song, queue?: Song[]) => void;
+  playSong: (song: Episode, queue?: Episode[]) => void;
   togglePlay: () => void;
   setPlaying: (playing: boolean) => void;
   setCurrentTime: (time: number) => void;
@@ -63,7 +63,7 @@ interface PlayerState {
   toggleShuffle: () => void;
   nextSong: () => void;
   previousSong: () => void;
-  addToQueue: (song: Song) => void;
+  addToQueue: (song: Episode) => void;
   removeFromQueue: (index: number) => void;
   clearQueue: () => void;
 }

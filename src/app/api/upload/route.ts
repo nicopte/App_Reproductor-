@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/auth';
 import { uploadImage, deleteImage, type CloudinaryFolder } from '@/lib/cloudinary';
 
-const ALLOWED_FOLDERS: CloudinaryFolder[] = ['songs', 'albums', 'artists', 'podcasts', 'playlists', 'users'];
+const ALLOWED_FOLDERS: CloudinaryFolder[] = ['podcasts', 'playlists', 'users'];
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 

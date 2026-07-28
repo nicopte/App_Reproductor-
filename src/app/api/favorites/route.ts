@@ -12,12 +12,9 @@ export async function GET() {
     const favorites = await db.favorite.findMany({
       where: { userId },
       include: {
-        song: {
+        episode: {
           include: {
-            artist: {
-              select: { id: true, name: true, image: true },
-            },
-            album: {
+            podcast: {
               select: { id: true, title: true, image: true },
             },
           },

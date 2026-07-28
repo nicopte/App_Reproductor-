@@ -10,20 +10,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { songId } = body;
+    const { episodeId } = body;
 
-    if (!songId) {
+    if (!episodeId) {
       return NextResponse.json(
-        { error: 'songId is required' },
+        { error: 'episodeId is required' },
         { status: 400 }
       );
     }
 
     const existing = await db.favorite.findUnique({
       where: {
-        userId_songId: {
+        userId_episodeId: {
           userId,
-          songId,
+          episodeId,
         },
       },
     });
@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
     if (existing) {
       await db.favorite.delete({
         where: {
-          userId_songId: {
+          userId_episodeId: {
             userId,
-            songId,
+            episodeId,
           },
         },
       });
@@ -42,14 +42,11 @@ export async function POST(request: NextRequest) {
     }
 
     const favorite = await db.favorite.create({
-      data: { userId, songId },
+      data: { userId, episodeId },
       include: {
-        song: {
+        episode: {
           include: {
-            artist: {
-              select: { id: true, name: true, image: true },
-            },
-            album: {
+            podcast: {
               select: { id: true, title: true, image: true },
             },
           },

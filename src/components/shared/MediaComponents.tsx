@@ -4,7 +4,6 @@ import { cn, formatDuration } from '@/lib/constants';
 import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import type { Artist, Album, Podcast } from '@/types';
 
 interface MediaCardProps {
   id: string;
@@ -12,7 +11,7 @@ interface MediaCardProps {
   subtitle?: string;
   image?: string;
   rounded?: boolean;
-  type: 'album' | 'artist' | 'playlist' | 'podcast';
+  type: 'playlist' | 'podcast';
   onClick?: () => void;
   onPlay?: () => void;
   className?: string;
@@ -28,8 +27,7 @@ export function MediaCard({
   onPlay,
   className,
 }: MediaCardProps) {
-  const isCircle = type === 'artist';
-  const borderRadius = isCircle ? 'rounded-full' : rounded ? 'rounded-xl' : 'rounded-lg';
+  const borderRadius = rounded ? 'rounded-xl' : 'rounded-lg';
 
   return (
     <div

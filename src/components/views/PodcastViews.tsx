@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigationStore, usePlayerStore, useAuthStore } from '@/stores';
 import { MediaCard, SectionHeader, SkeletonGrid, EmptyState } from '@/components/shared/MediaComponents';
 import { motion } from 'framer-motion';
-import { Podcast, Mic, Clock, Plus, Trash2, Star, MessageCircle } from 'lucide-react';
+import { Podcast, Mic, Clock, Plus, Trash2, Star, MessageCircle, Heart, ListMusic } from 'lucide-react';
 import { formatDuration, formatDate } from '@/lib/constants';
 import { cn } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
@@ -118,6 +118,40 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
       setEpAudio(null);
       setEpError('');
     },
+  });
+
+  const { data: favorites } = useQuery<{ episodeId: string }[]>({
+    queryKey: ['favorites'],
+    queryFn: () => fetch('/api/favorites').then((r) => r.json()),
+    enabled: !!currentUser,
+  });
+  const favoriteEpisodeIds = new Set((favorites || []).map((f) => f.episodeId));
+
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: (episodeId: string) =>
+      fetch('/api/favorites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ episodeId }),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favorites'] }),
+  });
+
+  const { data: myPlaylists } = useQuery<{ id: string; title: string }[]>({
+    queryKey: ['playlists'],
+    queryFn: () => fetch('/api/playlists').then((r) => r.json()),
+    enabled: !!currentUser,
+  });
+  const [addToPlaylistEpisodeId, setAddToPlaylistEpisodeId] = useState<string | null>(null);
+
+  const addToPlaylistMutation = useMutation({
+    mutationFn: ({ playlistId, episodeId }: { playlistId: string; episodeId: string }) =>
+      fetch(`/api/playlists/${playlistId}/episodes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ episodeId }),
+      }),
+    onSuccess: () => setAddToPlaylistEpisodeId(null),
   });
 
   const deleteEpisodeMutation = useMutation({
@@ -233,15 +267,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
 
   const handlePlayEpisode = (episode: Episode) => {
     if (episode.url) {
-      playSong({
-        id: episode.id,
-        title: episode.title,
-        duration: episode.duration,
-        url: episode.url,
-        image: episode.image || podcast.image,
-        artistId: podcast.id,
-        artist: { id: podcast.id, name: podcast.title },
-      } as any);
+      playSong({ ...episode, podcast: episode.podcast || { id: podcast.id, title: podcast.title, image: podcast.image, userId: podcast.userId } });
     }
   };
 
@@ -377,9 +403,11 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
         )}
 
         <div className="space-y-2">
-          {podcast.episodes?.map((episode, idx) => (
+          {podcast.episodes?.map((episode, idx) => {
+            const isFavorite = favoriteEpisodeIds.has(episode.id);
+            return (
+            <div key={episode.id}>
             <div
-              key={episode.id}
               className={cn(
                 'flex items-center gap-4 p-3 rounded-lg transition-colors cursor-pointer group',
                 'hover:bg-accent'
@@ -411,6 +439,35 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                 <Clock className="w-3.5 h-3.5" />
                 <span>{formatDuration(episode.duration)}</span>
               </div>
+              {currentUser && (
+                <>
+                  <button
+                    type="button"
+                    aria-label={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavoriteMutation.mutate(episode.id);
+                    }}
+                    className={cn(
+                      'w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0',
+                      isFavorite ? 'text-primary' : 'text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary'
+                    )}
+                  >
+                    <Heart className={cn('w-4 h-4', isFavorite && 'fill-current')} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Agregar a playlist"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAddToPlaylistEpisodeId(addToPlaylistEpisodeId === episode.id ? null : episode.id);
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary transition-all shrink-0"
+                  >
+                    <ListMusic className="w-4 h-4" />
+                  </button>
+                </>
+              )}
               {currentUser && podcast.user?.id === currentUser.id && (
                 <button
                   type="button"
@@ -425,7 +482,29 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                 </button>
               )}
             </div>
-          ))}
+            {addToPlaylistEpisodeId === episode.id && (
+              <div className="ml-16 mb-2 p-3 rounded-lg border border-border bg-card space-y-1 max-w-xs">
+                {myPlaylists && myPlaylists.length > 0 ? (
+                  myPlaylists.map((pl) => (
+                    <button
+                      key={pl.id}
+                      onClick={() => addToPlaylistMutation.mutate({ playlistId: pl.id, episodeId: episode.id })}
+                      disabled={addToPlaylistMutation.isPending}
+                      className="block w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent transition-colors disabled:opacity-50"
+                    >
+                      {pl.title}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground px-2 py-1">
+                    No tenés playlists todavía. Creá una desde tu Biblioteca.
+                  </p>
+                )}
+              </div>
+            )}
+            </div>
+            );
+          })}
         </div>
       </section>
 

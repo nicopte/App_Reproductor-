@@ -6,8 +6,6 @@ import {
   Library,
   ListMusic,
   Heart,
-  Disc,
-  Users,
   Podcast,
   Clock,
   Plus,
@@ -30,8 +28,6 @@ const NAV_ICONS: Record<string, typeof Home> = {
 const LIB_ICONS: Record<string, typeof ListMusic> = {
   playlists: ListMusic,
   favorites: Heart,
-  albums: Disc,
-  artists: Users,
   podcasts: Podcast,
   history: Clock,
 };

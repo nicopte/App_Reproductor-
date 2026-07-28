@@ -14,11 +14,11 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { songId } = body;
+    const { episodeId } = body;
 
-    if (!songId) {
+    if (!episodeId) {
       return NextResponse.json(
-        { error: 'songId is required' },
+        { error: 'episodeId is required' },
         { status: 400 }
       );
     }
@@ -38,8 +38,8 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get the max position for the new song
-    const maxPosition = await db.playlistSong.findFirst({
+    // Get the max position for the new episode
+    const maxPosition = await db.playlistEpisode.findFirst({
       where: { playlistId: id },
       orderBy: { position: 'desc' },
       select: { position: true },
@@ -47,19 +47,16 @@ export async function POST(
 
     const newPosition = (maxPosition?.position ?? 0) + 1;
 
-    const playlistSong = await db.playlistSong.create({
+    const playlistEpisode = await db.playlistEpisode.create({
       data: {
         playlistId: id,
-        songId,
+        episodeId,
         position: newPosition,
       },
       include: {
-        song: {
+        episode: {
           include: {
-            artist: {
-              select: { id: true, name: true, image: true },
-            },
-            album: {
+            podcast: {
               select: { id: true, title: true, image: true },
             },
           },
@@ -67,9 +64,9 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(playlistSong, { status: 201 });
+    return NextResponse.json(playlistEpisode, { status: 201 });
   } catch (error) {
-    console.error('Add song to playlist error:', error);
+    console.error('Add episode to playlist error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -89,11 +86,11 @@ export async function DELETE(
 
     const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const songId = searchParams.get('songId');
+    const episodeId = searchParams.get('episodeId');
 
-    if (!songId) {
+    if (!episodeId) {
       return NextResponse.json(
-        { error: 'songId query parameter is required' },
+        { error: 'episodeId query parameter is required' },
         { status: 400 }
       );
     }
@@ -113,18 +110,18 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await db.playlistSong.delete({
+    await db.playlistEpisode.delete({
       where: {
-        playlistId_songId: {
+        playlistId_episodeId: {
           playlistId: id,
-          songId,
+          episodeId,
         },
       },
     });
 
-    return NextResponse.json({ message: 'Song removed from playlist' });
+    return NextResponse.json({ message: 'Episode removed from playlist' });
   } catch (error) {
-    console.error('Remove song from playlist error:', error);
+    console.error('Remove episode from playlist error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -2,40 +2,38 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigationStore, usePlayerStore, useAuthStore } from '@/stores';
-import { SectionHeader, EmptyState } from '@/components/shared/MediaComponents';
+import { EmptyState } from '@/components/shared/MediaComponents';
 import { ImageUploader } from '@/components/shared/ImageUploader';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { Play, Plus, Music, X, Trash2 } from 'lucide-react';
+import { Play, Plus, Podcast as PodcastIcon, X, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { cn, formatDuration } from '@/lib/constants';
-import type { Playlist, Song } from '@/types';
+import type { Playlist, Episode } from '@/types';
 
-interface PlaylistWithSongs extends Omit<Playlist, 'songs'> {
-  songs: Array<{ id: string; song: Song; position: number }>;
+interface PlaylistWithEpisodes extends Omit<Playlist, 'episodes'> {
+  episodes: Array<{ id: string; episode: Episode; position: number }>;
 }
 
 export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
   const navigate = useNavigationStore((s) => s.navigate);
   const playSong = usePlayerStore((s) => s.playSong);
   const currentSong = usePlayerStore((s) => s.currentSong);
-  const isPlaying = usePlayerStore((s) => s.isPlaying);
   const currentUser = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
-  const [showAddSong, setShowAddSong] = useState(false);
+  const [showAddEpisode, setShowAddEpisode] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const { data: playlist, isLoading } = useQuery<PlaylistWithSongs>({
+  const { data: playlist, isLoading } = useQuery<PlaylistWithEpisodes>({
     queryKey: ['playlist', playlistId],
     queryFn: () => fetch(`/api/playlists/${playlistId}`).then((r) => r.json()),
     enabled: !!playlistId,
   });
 
-  const { data: allSongs } = useQuery<Song[]>({
-    queryKey: ['songs'],
-    queryFn: () => fetch('/api/songs').then((r) => r.json()),
+  const { data: allEpisodes } = useQuery<Episode[]>({
+    queryKey: ['episodes'],
+    queryFn: () => fetch('/api/episodes').then((r) => r.json()),
   });
 
   const updateCoverMutation = useMutation({
@@ -51,34 +49,37 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
     },
   });
 
-  const addSongMutation = useMutation({
-    mutationFn: ({ playlistId, songId }: { playlistId: string; songId: string }) =>
-      fetch(`/api/playlists/${playlistId}/songs`, {
+  const addEpisodeMutation = useMutation({
+    mutationFn: ({ playlistId, episodeId }: { playlistId: string; episodeId: string }) =>
+      fetch(`/api/playlists/${playlistId}/episodes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songId }),
+        body: JSON.stringify({ episodeId }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] });
-      setShowAddSong(false);
     },
   });
 
-  const removeSongMutation = useMutation({
-    mutationFn: ({ playlistId, songId }: { playlistId: string; songId: string }) =>
-      fetch(`/api/playlists/${playlistId}/songs?songId=${songId}`, { method: 'DELETE' }),
+  const removeEpisodeMutation = useMutation({
+    mutationFn: ({ playlistId, episodeId }: { playlistId: string; episodeId: string }) =>
+      fetch(`/api/playlists/${playlistId}/episodes?episodeId=${episodeId}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => fetch(`/api/playlists/${id}`, { method: 'DELETE' }),
-    onSuccess: () => navigate('library'),
+    onSuccess: (res) => {
+      if (!res.ok) return;
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+      navigate('library');
+    },
   });
 
   const handlePlayAll = () => {
-    if (playlist?.songs && playlist.songs.length > 0) {
-      const songs = playlist.songs.map((s) => s.song).filter(Boolean);
-      playSong(songs[0], songs);
+    if (episodes.length > 0) {
+      const playable = episodes.filter((e) => e.url);
+      if (playable.length > 0) playSong(playable[0], playable);
     }
   };
 
@@ -93,20 +94,20 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
             <div className="h-4 w-48 rounded bg-muted animate-pulse" />
           </div>
         </div>
-        <SkeletonList count={5} />
       </div>
     );
   }
 
-  if (!playlist) return <EmptyState title="Playlist no encontrada" description="La playlist que buscas no existe" />;
+  if (!playlist) return <EmptyState title="Playlist no encontrada" description="La playlist que buscás no existe" />;
 
-  const songs = playlist.songs?.map((s) => s.song).filter(Boolean) || [];
+  const episodes = playlist.episodes?.map((e) => e.episode).filter(Boolean) || [];
+  const isOwner = currentUser && playlist.user?.id === currentUser.id;
 
   return (
     <div className="space-y-6 pb-4">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row items-start md:items-end gap-6">
-        {currentUser && playlist.user?.id === currentUser.id ? (
+        {isOwner ? (
           <div className="flex-shrink-0">
             <ImageUploader
               folder="playlists"
@@ -120,7 +121,7 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
               <img src={playlist.image} alt={playlist.title} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Music className="w-16 h-16 text-muted-foreground/40" />
+                <PodcastIcon className="w-16 h-16 text-muted-foreground/40" />
               </div>
             )}
           </div>
@@ -132,26 +133,56 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
             <p className="text-muted-foreground text-sm mb-3">{playlist.description}</p>
           )}
           <p className="text-sm text-muted-foreground">
-            {songs.length} canciones
+            {episodes.length} episodios
           </p>
-          <div className="flex items-center gap-2 mt-4">
+          <div className="flex items-center gap-2 mt-4 flex-wrap">
             <Button onClick={handlePlayAll} size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Play className="w-5 h-5 fill-current mr-2" />
               Reproducir
             </Button>
-            <Button variant="outline" size="lg" onClick={() => setShowAddSong(!showAddSong)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Agregar canción
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(playlist.id)}>
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
+            {isOwner && (
+              <>
+                <Button variant="outline" size="lg" onClick={() => setShowAddEpisode(!showAddEpisode)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Agregar episodio
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  aria-label="Eliminar playlist"
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </>
+            )}
           </div>
+
+          {showDeleteConfirm && (
+            <div className="mt-4 p-4 rounded-lg border border-destructive/30 bg-destructive/5 space-y-3 max-w-xl">
+              <p className="text-sm">
+                ¿Eliminar la playlist <strong>{playlist.title}</strong>? Esta acción no se puede deshacer.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={deleteMutation.isPending}
+                  onClick={() => deleteMutation.mutate(playlist.id)}
+                >
+                  {deleteMutation.isPending ? 'Eliminando…' : 'Sí, eliminar'}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)} disabled={deleteMutation.isPending}>
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </motion.div>
 
-      {/* Add Song Panel */}
-      {showAddSong && (
+      {/* Add Episode Panel */}
+      {showAddEpisode && isOwner && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
@@ -159,114 +190,112 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
           className="border border-border rounded-lg p-4"
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Agregar canción</h3>
-            <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => setShowAddSong(false)}>
+            <h3 className="font-semibold text-sm">Agregar episodio</h3>
+            <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => setShowAddEpisode(false)}>
               <X className="w-4 h-4" />
             </Button>
           </div>
           <div className="max-h-64 overflow-y-auto space-y-1">
-            {allSongs?.filter((s) => !songs.find((ps) => ps.id === s.id)).map((song) => (
+            {allEpisodes?.filter((ep) => !episodes.find((pe) => pe.id === ep.id)).map((episode) => (
               <button
-                key={song.id}
-                onClick={() => addSongMutation.mutate({ playlistId: playlist.id, songId: song.id })}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors text-left"
+                key={episode.id}
+                onClick={() => addEpisodeMutation.mutate({ playlistId: playlist.id, episodeId: episode.id })}
+                disabled={addEpisodeMutation.isPending}
+                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors text-left disabled:opacity-50"
               >
                 <div className="w-8 h-8 rounded overflow-hidden bg-muted">
-                  {song.image ? (
-                    <img src={song.image} alt={song.title} className="w-full h-full object-cover" />
+                  {episode.image || episode.podcast?.image ? (
+                    <img src={episode.image || episode.podcast?.image} alt={episode.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-muted-foreground">
-                      {song.title.charAt(0)}
+                      {episode.title.charAt(0)}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{song.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">{song.artist?.name}</p>
+                  <p className="text-sm truncate">{episode.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{episode.podcast?.title}</p>
                 </div>
                 <Plus className="w-4 h-4 text-muted-foreground" />
               </button>
             ))}
+            {allEpisodes && allEpisodes.filter((ep) => !episodes.find((pe) => pe.id === ep.id)).length === 0 && (
+              <p className="text-sm text-muted-foreground px-3 py-2">No hay más episodios para agregar.</p>
+            )}
           </div>
         </motion.div>
       )}
 
-      {/* Song List */}
-      <div className="space-y-1">
-        <div className="grid grid-cols-[32px_1fr_1fr_80px] md:grid-cols-[32px_1fr_1fr_1fr_80px] gap-3 px-3 py-2 text-xs text-muted-foreground font-medium border-b border-border/50">
-          <span>#</span>
-          <span>Título</span>
-          <span className="hidden md:block">Álbum</span>
-          <span className="text-right">Duración</span>
-        </div>
-        {songs.map((song, idx) => {
-          const isActive = currentSong?.id === song.id;
-          return (
-            <div
-              key={`${song.id}-${idx}`}
-              className={cn(
-                'grid grid-cols-[32px_1fr_1fr_80px] md:grid-cols-[32px_1fr_1fr_1fr_80px] items-center gap-3 px-3 py-2 rounded-lg transition-colors group hover:bg-accent cursor-pointer',
-                isActive && 'bg-accent/60'
-              )}
-              onClick={() => playSong(song, songs)}
-            >
-              <div className="flex items-center justify-center w-8">
-                <span className={cn('text-sm tabular-nums', isActive ? 'text-primary' : 'text-muted-foreground group-hover:hidden')}>
-                  {idx + 1}
-                </span>
-                <span className="hidden group-hover:block text-muted-foreground">
-                  <Play className="w-4 h-4 fill-current" />
-                </span>
-              </div>
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
-                  {song.image ? (
-                    <img src={song.image} alt={song.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-muted-foreground">
-                      {song.title.charAt(0)}
-                    </div>
+      {/* Episode List */}
+      {episodes.length === 0 ? (
+        <EmptyState
+          title="Playlist vacía"
+          description="Agregá episodios para empezar a armar tu lista"
+          icon={<PodcastIcon className="w-8 h-8 text-muted-foreground" />}
+        />
+      ) : (
+        <div className="space-y-1">
+          <div className="grid grid-cols-[32px_1fr_1fr_80px] md:grid-cols-[32px_1fr_1fr_1fr_80px] gap-3 px-3 py-2 text-xs text-muted-foreground font-medium border-b border-border/50">
+            <span>#</span>
+            <span>Título</span>
+            <span className="hidden md:block">Podcast</span>
+            <span className="text-right">Duración</span>
+          </div>
+          {episodes.map((episode, idx) => {
+            const isActive = currentSong?.id === episode.id;
+            return (
+              <div
+                key={`${episode.id}-${idx}`}
+                className={cn(
+                  'grid grid-cols-[32px_1fr_1fr_80px] md:grid-cols-[32px_1fr_1fr_1fr_80px] items-center gap-3 px-3 py-2 rounded-lg transition-colors group hover:bg-accent cursor-pointer',
+                  isActive && 'bg-accent/60'
+                )}
+                onClick={() => episode.url && playSong(episode, episodes.filter((e) => e.url))}
+              >
+                <div className="flex items-center justify-center w-8">
+                  <span className={cn('text-sm tabular-nums', isActive ? 'text-primary' : 'text-muted-foreground group-hover:hidden')}>
+                    {idx + 1}
+                  </span>
+                  <span className="hidden group-hover:block text-muted-foreground">
+                    <Play className="w-4 h-4 fill-current" />
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
+                    {episode.image || episode.podcast?.image ? (
+                      <img src={episode.image || episode.podcast?.image} alt={episode.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs font-bold text-muted-foreground">
+                        {episode.title.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={cn('text-sm font-medium truncate', isActive && 'text-primary')}>{episode.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">{episode.podcast?.title}</p>
+                  </div>
+                </div>
+                <p className="hidden md:block text-sm text-muted-foreground truncate">{episode.podcast?.title}</p>
+                <div className="flex items-center justify-end gap-1">
+                  <span className="text-sm text-muted-foreground tabular-nums">{formatDuration(episode.duration)}</span>
+                  {isOwner && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeEpisodeMutation.mutate({ playlistId: playlist.id, episodeId: episode.id });
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Quitar de la playlist"
+                    >
+                      <X className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                    </button>
                   )}
                 </div>
-                <div className="min-w-0">
-                  <p className={cn('text-sm font-medium truncate', isActive && 'text-primary')}>{song.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">{song.artist?.name}</p>
-                </div>
               </div>
-              <p className="hidden md:block text-sm text-muted-foreground truncate">{song.album?.title}</p>
-              <div className="flex items-center justify-end gap-1">
-                <span className="text-sm text-muted-foreground tabular-nums">{formatDuration(song.duration)}</span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeSongMutation.mutate({ playlistId: playlist.id, songId: song.id });
-                  }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function SkeletonList({ count }: { count: number }) {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-3 py-2">
-          <div className="w-10 h-10 rounded bg-muted animate-pulse" />
-          <div className="flex-1 space-y-2">
-            <div className="h-4 w-1/3 rounded bg-muted animate-pulse" />
-            <div className="h-3 w-1/4 rounded bg-muted animate-pulse" />
-          </div>
-          <div className="h-3 w-12 rounded bg-muted animate-pulse" />
+            );
+          })}
         </div>
-      ))}
+      )}
     </div>
   );
 }

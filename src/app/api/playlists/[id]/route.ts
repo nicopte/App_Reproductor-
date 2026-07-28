@@ -16,14 +16,11 @@ export async function GET(
         user: {
           select: { id: true, name: true, avatar: true },
         },
-        songs: {
+        episodes: {
           include: {
-            song: {
+            episode: {
               include: {
-                artist: {
-                  select: { id: true, name: true, image: true },
-                },
-                album: {
+                podcast: {
                   select: { id: true, title: true, image: true },
                 },
               },

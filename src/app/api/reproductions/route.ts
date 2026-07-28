@@ -10,17 +10,11 @@ export async function GET() {
     }
 
     const reproductions = await db.reproduction.findMany({
-      where: {
-        userId,
-        songId: { not: null },
-      },
+      where: { userId },
       include: {
-        song: {
+        episode: {
           include: {
-            artist: {
-              select: { id: true, name: true, image: true },
-            },
-            album: {
+            podcast: {
               select: { id: true, title: true, image: true },
             },
           },
@@ -48,11 +42,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { songId, episodeId, progress, completed } = body;
+    const { episodeId, progress, completed } = body;
 
-    if (!songId && !episodeId) {
+    if (!episodeId) {
       return NextResponse.json(
-        { error: 'Either songId or episodeId is required' },
+        { error: 'episodeId is required' },
         { status: 400 }
       );
     }
@@ -60,8 +54,7 @@ export async function POST(request: NextRequest) {
     const reproduction = await db.reproduction.create({
       data: {
         userId,
-        songId: songId ?? null,
-        episodeId: episodeId ?? null,
+        episodeId,
         progress: progress ?? 0,
         completed: completed ?? false,
       },
