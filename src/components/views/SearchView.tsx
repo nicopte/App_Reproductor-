@@ -112,11 +112,11 @@ export function SearchView() {
             )}
 
             {/* Artistas — oculto de la navegación a pedido */}
-            {false && results.artists.length > 0 && (
+            {false && (results?.artists?.length ?? 0) > 0 && (
               <section>
                 <h2 className="text-lg font-semibold mb-4">Artistas</h2>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-                  {results.artists.slice(0, 8).map((artist) => (
+                  {(results?.artists ?? []).slice(0, 8).map((artist) => (
                     <MediaCard
                       key={artist.id}
                       id={artist.id}
