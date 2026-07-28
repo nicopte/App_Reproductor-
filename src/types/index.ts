@@ -54,6 +54,7 @@ export interface Podcast {
   userId: string;
   user?: { id: string; name: string; avatar?: string };
   episodeCount?: number;
+  averageRating?: number;
 }
 
 export interface Episode {

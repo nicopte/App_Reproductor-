@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     return NextResponse.json({
-      podcasts,
+      podcasts: podcasts.map((p) => ({ ...p, episodeCount: p._count.episodes })),
       episodes,
     });
   } catch (error) {

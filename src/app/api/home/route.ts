@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 
 export async function GET() {
   try {
-    const [featuredPlaylists, recentPodcasts, recentEpisodes] = await Promise.all([
+    const [featuredPlaylists, recentPodcasts, recentEpisodes, ratingGroups] = await Promise.all([
       // Featured playlists (public playlists, limited to 6)
       db.playlist.findMany({
         where: { isPublic: true },
@@ -32,12 +32,42 @@ export async function GET() {
         },
         orderBy: { createdAt: 'desc' },
       }),
+
+      // Rating averages per podcast, para armar "Mejor valorados"
+      db.podcastRating.groupBy({
+        by: ['podcastId'],
+        _avg: { value: true },
+        _count: { value: true },
+      }),
     ]);
 
+    // Solo consideramos podcasts con al menos 1 calificación, ordenados de mayor a menor promedio
+    const topRatedIds = ratingGroups
+      .filter((g) => g._count.value > 0)
+      .sort((a, b) => (b._avg.value || 0) - (a._avg.value || 0))
+      .slice(0, 8)
+      .map((g) => g.podcastId);
+
+    const topRatedPodcastsRaw = topRatedIds.length
+      ? await db.podcast.findMany({
+          where: { id: { in: topRatedIds } },
+          include: { _count: { select: { episodes: true } } },
+        })
+      : [];
+
+    const ratingById = new Map(ratingGroups.map((g) => [g.podcastId, g._avg.value || 0]));
+    const topRatedPodcasts = topRatedIds
+      .map((id) => {
+        const p = topRatedPodcastsRaw.find((x) => x.id === id);
+        return p ? { ...p, episodeCount: p._count.episodes, averageRating: ratingById.get(id) || 0 } : null;
+      })
+      .filter(Boolean);
+
     return NextResponse.json({
-      featuredPlaylists,
-      recentPodcasts,
+      featuredPlaylists: featuredPlaylists.map((p) => ({ ...p, episodeCount: p._count.episodes })),
+      recentPodcasts: recentPodcasts.map((p) => ({ ...p, episodeCount: p._count.episodes })),
       recentEpisodes,
+      topRatedPodcasts,
     });
   } catch (error) {
     console.error('Get home data error:', error);

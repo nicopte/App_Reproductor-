@@ -17,12 +17,21 @@ export async function POST(request: NextRequest) {
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        // Only allow uploads into the podcasts/audio/ prefix, mp3 only.
+        // Only allow uploads into the podcasts/audio/ prefix, formatos de audio soportados.
         if (!pathname.startsWith(`podcasts/${userId}/`)) {
           throw new Error('Invalid upload path');
         }
         return {
-          allowedContentTypes: ['audio/mpeg', 'audio/mp3'],
+          allowedContentTypes: [
+            'audio/mpeg',
+            'audio/mp3',
+            'audio/wav',
+            'audio/x-wav',
+            'audio/wave',
+            'audio/m4a',
+            'audio/x-m4a',
+            'audio/mp4',
+          ],
           maximumSizeInBytes: MAX_EPISODE_AUDIO_BYTES,
           addRandomSuffix: true,
         };

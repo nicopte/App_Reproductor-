@@ -9,7 +9,6 @@ import {
   Podcast,
   Clock,
   Plus,
-  Music2,
   LogOut,
 } from 'lucide-react';
 import { useNavigationStore } from '@/stores';
@@ -40,8 +39,8 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-[280px] min-w-[280px] h-full pb-[88px] bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-          <Music2 className="w-5 h-5 text-primary-foreground" />
+        <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+          <img src="/logo.jpg" alt={APP_NAME} className="w-full h-full object-cover" />
         </div>
         <span className="text-lg font-bold tracking-tight">{APP_NAME}</span>
       </div>

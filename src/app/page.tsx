@@ -14,7 +14,7 @@ import { LoginView } from '@/components/views/AuthViews';
 import { FavoritesView } from '@/components/views/FavoritesView';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Music2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
@@ -77,8 +77,8 @@ export default function App() {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Music2 className="w-6 h-6 text-primary" />
+          <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center">
+            <img src="/logo.jpg" alt="MP3DB" className="w-full h-full object-cover" />
           </div>
           <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </div>

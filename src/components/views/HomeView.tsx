@@ -113,6 +113,30 @@ export function HomeView() {
         </motion.div>
       )}
 
+      {/* Mejor valorados */}
+      {(data?.topRatedPodcasts?.length || 0) > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <SectionHeader title="Mejor valorados" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {(data?.topRatedPodcasts as Podcast[]).map((podcast) => (
+              <MediaCard
+                key={podcast.id}
+                id={podcast.id}
+                title={podcast.title}
+                subtitle={`★ ${(podcast.averageRating || 0).toFixed(1)} · ${podcast.episodeCount || 0} episodios`}
+                image={podcast.image}
+                type="podcast"
+                onClick={() => navigate('podcast-detail', { id: podcast.id })}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Playlists destacadas */}
       {featuredPlaylists.length > 0 && (
         <motion.div

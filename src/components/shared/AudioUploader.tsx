@@ -9,6 +9,18 @@ import { useAuthStore } from '@/stores';
 const MAX_TARGET_MB = 40;
 const MAX_HARD_MB = 45; // must match MAX_EPISODE_AUDIO_BYTES on the server route
 
+const ACCEPTED_MIME_TYPES = [
+  'audio/mpeg', // .mp3
+  'audio/mp3',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/wave',
+  'audio/m4a',
+  'audio/x-m4a',
+  'audio/mp4', // .m4a suele venir como audio/mp4 en algunos navegadores
+];
+const ACCEPTED_EXTENSIONS = ['.mp3', '.wav', '.m4a'];
+
 interface AudioUploaderProps {
   value?: string;
   fileName?: string;
@@ -46,9 +58,12 @@ export function AudioUploader({ value, fileName, onUploaded, onClear, className 
     if (!file || !user) return;
     setError('');
 
-    const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3');
-    if (!isMp3) {
-      setError('Solo se aceptan archivos .mp3');
+    const nameLower = file.name.toLowerCase();
+    const isAccepted =
+      ACCEPTED_MIME_TYPES.includes(file.type) ||
+      ACCEPTED_EXTENSIONS.some((ext) => nameLower.endsWith(ext));
+    if (!isAccepted) {
+      setError('Formatos aceptados: .mp3, .wav, .m4a');
       if (inputRef.current) inputRef.current.value = '';
       return;
     }
@@ -115,7 +130,7 @@ export function AudioUploader({ value, fileName, onUploaded, onClear, className 
         <div
           role="button"
           tabIndex={0}
-          aria-label="Subir episodio en mp3"
+          aria-label="Subir episodio en mp3, wav o m4a"
           onClick={() => !isUploading && inputRef.current?.click()}
           onKeyDown={(e) => {
             if ((e.key === 'Enter' || e.key === ' ') && !isUploading) {
@@ -135,7 +150,7 @@ export function AudioUploader({ value, fileName, onUploaded, onClear, className 
           ) : (
             <>
               <UploadCloud className="w-6 h-6 text-muted-foreground" />
-              <p className="text-sm font-medium">Subir episodio (.mp3, hasta {MAX_TARGET_MB}MB)</p>
+              <p className="text-sm font-medium">Subir episodio (.mp3, .wav, .m4a — hasta {MAX_TARGET_MB}MB)</p>
               <p className="text-xs text-muted-foreground">Se sube directo, sin pasar por el servidor</p>
             </>
           )}
@@ -145,7 +160,7 @@ export function AudioUploader({ value, fileName, onUploaded, onClear, className 
       <input
         ref={inputRef}
         type="file"
-        accept="audio/mpeg,.mp3"
+        accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/wave,audio/m4a,audio/x-m4a,audio/mp4,.mp3,.wav,.m4a"
         className="sr-only"
         onChange={handleFileSelect}
       />

@@ -22,7 +22,9 @@ export async function GET() {
       orderBy: { updatedAt: 'desc' },
     });
 
-    return NextResponse.json(playlists);
+    return NextResponse.json(
+      playlists.map((p) => ({ ...p, episodeCount: p._count.episodes }))
+    );
   } catch (error) {
     console.error('Get playlists error:', error);
     return NextResponse.json(

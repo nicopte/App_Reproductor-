@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigationStore, usePlayerStore, useAuthStore } from '@/stores';
 import { MediaCard, SectionHeader, SkeletonGrid, EmptyState } from '@/components/shared/MediaComponents';
 import { motion } from 'framer-motion';
-import { Podcast, Mic, Clock, Plus, Trash2, Star, MessageCircle, Heart, ListMusic } from 'lucide-react';
+import { Podcast, Mic, Clock, Plus, Trash2, Star, MessageCircle, Heart, ListMusic, Pencil, X as XIcon } from 'lucide-react';
 import { formatDuration, formatDate } from '@/lib/constants';
 import { cn } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
@@ -163,6 +163,29 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editImage, setEditImage] = useState('');
+
+  const updatePodcastMutation = useMutation({
+    mutationFn: () =>
+      fetch(`/api/podcasts/${podcastId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editTitle.trim(),
+          description: editDescription.trim() || null,
+          image: editImage || null,
+        }),
+      }),
+    onSuccess: async (res) => {
+      if (!res.ok) return;
+      queryClient.invalidateQueries({ queryKey: ['podcast', podcastId] });
+      queryClient.invalidateQueries({ queryKey: ['podcasts'] });
+      setIsEditing(false);
+    },
+  });
   const deletePodcastMutation = useMutation({
     mutationFn: () => fetch(`/api/podcasts/${podcastId}`, { method: 'DELETE' }),
     onSuccess: (res) => {
@@ -287,26 +310,76 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <Badge variant="secondary" className="mb-2">Podcast</Badge>
-            {currentUser && podcast.user?.id === currentUser.id && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5 shrink-0"
-                onClick={() => setShowDeleteConfirm(true)}
-                aria-label="Eliminar podcast"
-              >
-                <Trash2 className="w-4 h-4" />
-                Eliminar podcast
-              </Button>
+            {currentUser && podcast.user?.id === currentUser.id && !isEditing && (
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => {
+                    setEditTitle(podcast.title);
+                    setEditDescription(podcast.description || '');
+                    setEditImage(podcast.image || '');
+                    setIsEditing(true);
+                  }}
+                  aria-label="Editar podcast"
+                >
+                  <Pencil className="w-4 h-4" />
+                  Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  aria-label="Eliminar podcast"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar podcast
+                </Button>
+              </div>
             )}
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold mb-2">{podcast.title}</h1>
-          {podcast.description && (
-            <p className="text-muted-foreground text-sm max-w-xl">{podcast.description}</p>
+
+          {isEditing ? (
+            <div className="space-y-3 max-w-xl">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Portada</label>
+                <ImageUploader folder="podcasts" value={editImage} onChange={(url) => setEditImage(url)} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Título</label>
+                <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Título del podcast" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Descripción</label>
+                <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} placeholder="Descripción" />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  disabled={!editTitle.trim() || updatePodcastMutation.isPending}
+                  onClick={() => updatePodcastMutation.mutate()}
+                >
+                  {updatePodcastMutation.isPending ? 'Guardando…' : 'Guardar cambios'}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={updatePodcastMutation.isPending}>
+                  <XIcon className="w-4 h-4 mr-1" />
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl md:text-5xl font-bold mb-2">{podcast.title}</h1>
+              {podcast.description && (
+                <p className="text-muted-foreground text-sm max-w-xl">{podcast.description}</p>
+              )}
+              <p className="text-sm text-muted-foreground mt-2">
+                {podcast.episodes?.length || 0} episodios
+              </p>
+            </>
           )}
-          <p className="text-sm text-muted-foreground mt-2">
-            {podcast.episodes?.length || 0} episodios
-          </p>
 
           {showDeleteConfirm && (
             <div className="mt-4 p-4 rounded-lg border border-destructive/30 bg-destructive/5 space-y-3 max-w-xl">

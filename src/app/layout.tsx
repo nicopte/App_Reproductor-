@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "MP3DB — Tu Plataforma de Música",
   description: "Escucha música, podcasts y más. Tu plataforma de streaming favorita.",
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.jpg",
   },
 };
 

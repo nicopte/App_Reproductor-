@@ -16,7 +16,9 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(podcasts);
+    return NextResponse.json(
+      podcasts.map((p) => ({ ...p, episodeCount: p._count.episodes }))
+    );
   } catch (error) {
     console.error('Get podcasts error:', error);
     return NextResponse.json(

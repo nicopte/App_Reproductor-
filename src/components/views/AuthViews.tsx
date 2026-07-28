@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Music2, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
 
@@ -75,8 +75,8 @@ export function LoginView() {
         >
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Music2 className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl overflow-hidden flex items-center justify-center">
+                <img src="/logo.jpg" alt="MP3DB" className="w-full h-full object-cover" />
               </div>
               <CardTitle className="text-2xl">
                 {showRegister ? 'Crear cuenta' : 'Bienvenido de vuelta'}
