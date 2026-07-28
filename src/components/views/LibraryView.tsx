@@ -59,10 +59,13 @@ export function LibraryView() {
             <Disc className="w-4 h-4" />
             <span className="hidden sm:inline">Álbumes</span>
           </TabsTrigger>
-          <TabsTrigger value="artists" className="gap-1.5">
-            <Users className="w-4 h-4" />
-            <span className="hidden sm:inline">Artistas</span>
-          </TabsTrigger>
+          {/* Pestaña Artistas — oculta de la navegación a pedido */}
+          {false && (
+            <TabsTrigger value="artists" className="gap-1.5">
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Artistas</span>
+            </TabsTrigger>
+          )}
           <TabsTrigger value="history" className="gap-1.5">
             <Clock className="w-4 h-4" />
             <span className="hidden sm:inline">Historial</span>

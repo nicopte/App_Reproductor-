@@ -111,7 +111,8 @@ export function SearchView() {
               </section>
             )}
 
-            {results.artists.length > 0 && (
+            {/* Artistas — oculto de la navegación a pedido */}
+            {false && results.artists.length > 0 && (
               <section>
                 <h2 className="text-lg font-semibold mb-4">Artistas</h2>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">

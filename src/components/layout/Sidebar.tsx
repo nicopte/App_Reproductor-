@@ -41,7 +41,7 @@ export function Sidebar() {
   const { isAuthenticated, user, logout } = useAuthStore();
 
   return (
-    <aside className="hidden md:flex flex-col w-[280px] min-w-[280px] h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+    <aside className="hidden md:flex flex-col w-[280px] min-w-[280px] h-full pb-[88px] bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
@@ -91,7 +91,7 @@ export function Sidebar() {
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 px-3">
+      <ScrollArea className="flex-1 min-h-0 px-3">
         <div className="space-y-1 pb-4">
           {LIBRARY_ITEMS.map((item) => {
             const Icon = LIB_ICONS[item.id];
@@ -161,8 +161,8 @@ export function MobileNav() {
   const { currentView, navigate } = useNavigationStore();
 
   return (
-    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 z-40 glass border-t border-border">
-      <div className="flex items-center justify-around py-2">
+    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 z-40 h-[64px] glass border-t border-border">
+      <div className="flex items-center justify-around h-full">
         {(['home', 'search', 'library'] as const).map((item) => {
           const Icon = NAV_ICONS[item];
           const labels: Record<string, string> = { home: 'Inicio', search: 'Buscar', library: 'Biblioteca' };

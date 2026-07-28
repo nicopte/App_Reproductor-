@@ -101,7 +101,7 @@ export default function App() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <main className="flex-1 flex flex-col overflow-hidden pb-[72px] md:pb-[88px]">
+      <main className="flex-1 flex flex-col overflow-hidden pb-[136px] md:pb-[88px]">
         <div className="flex items-center gap-3 px-4 md:px-6 py-3 sticky top-0 z-30 glass-subtle">
           {showNavBack && (
             <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={goBack} aria-label="Volver">
@@ -110,7 +110,7 @@ export default function App() {
           )}
           <div className="flex-1" />
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="px-4 md:px-6 py-2 md:py-4">
             <AnimatePresence mode="wait">
               <motion.div

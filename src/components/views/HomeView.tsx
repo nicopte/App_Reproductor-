@@ -147,8 +147,8 @@ export function HomeView() {
         </motion.div>
       )}
 
-      {/* Popular Artists */}
-      {popularArtists.length > 0 && (
+      {/* Popular Artists — oculto de la navegación a pedido; el código y los datos siguen disponibles */}
+      {false && popularArtists.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

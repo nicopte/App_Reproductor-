@@ -21,6 +21,8 @@ model User {
   reproductions   Reproduction[]
   podcasts        Podcast[]
   followedArtists Follow[]
+  podcastRatings  PodcastRating[]
+  podcastComments PodcastComment[]
 }
 
 model Artist {
@@ -144,6 +146,34 @@ model Podcast {
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   episodes Episode[]
+  ratings  PodcastRating[]
+  comments PodcastComment[]
+}
+
+model PodcastRating {
+  id        String   @id @default(cuid())
+  userId    String
+  podcastId String
+  value     Int      // 1 a 5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  podcast Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, podcastId])
+}
+
+model PodcastComment {
+  id        String   @id @default(cuid())
+  userId    String
+  podcastId String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  podcast Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
 }
 
 model Episode {

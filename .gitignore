@@ -53,3 +53,11 @@ prompt
 server.log
 # Skills directory
 /skills/
+# archivos de entorno local / sandbox, no necesarios para el deploy
+.zscripts/
+start-dev.sh
+generate-albums.sh
+Caddyfile
+tests/
+mini-services/
+bun.lock
