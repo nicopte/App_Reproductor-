@@ -288,9 +288,6 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
 
   if (!podcast) return <EmptyState title="Podcast no encontrado" description="El podcast que buscas no existe" />;
 
-  const isOwner = !!currentUser && podcast.user?.id === currentUser.id;
-  const isAdmin = !!currentUser?.isAdmin;
-
   const handlePlayEpisode = (episode: Episode) => {
     if (episode.url) {
       playSong({ ...episode, podcast: episode.podcast || { id: podcast.id, title: podcast.title, image: podcast.image, userId: podcast.userId } });
@@ -313,25 +310,23 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <Badge variant="secondary" className="mb-2">Podcast</Badge>
-            {currentUser && !isEditing && (isOwner || isAdmin) && (
+            {currentUser && podcast.user?.id === currentUser.id && !isEditing && (
               <div className="flex items-center gap-1 shrink-0">
-                {isOwner && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => {
-                      setEditTitle(podcast.title);
-                      setEditDescription(podcast.description || '');
-                      setEditImage(podcast.image || '');
-                      setIsEditing(true);
-                    }}
-                    aria-label="Editar podcast"
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Editar
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => {
+                    setEditTitle(podcast.title);
+                    setEditDescription(podcast.description || '');
+                    setEditImage(podcast.image || '');
+                    setIsEditing(true);
+                  }}
+                  aria-label="Editar podcast"
+                >
+                  <Pencil className="w-4 h-4" />
+                  Editar
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -340,7 +335,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                   aria-label="Eliminar podcast"
                 >
                   <Trash2 className="w-4 h-4" />
-                  {isOwner ? 'Eliminar podcast' : 'Eliminar (admin)'}
+                  Eliminar podcast
                 </Button>
               </div>
             )}
@@ -546,7 +541,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                   </button>
                 </>
               )}
-              {currentUser && (podcast.user?.id === currentUser.id || currentUser.isAdmin) && (
+              {currentUser && podcast.user?.id === currentUser.id && (
                 <button
                   type="button"
                   aria-label="Eliminar episodio"
@@ -659,7 +654,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
             <p className="text-sm text-muted-foreground">Todavía no hay comentarios. ¡Sé el primero!</p>
           )}
           {comments?.map((comment) => {
-            const canDelete = currentUser && (comment.user.id === currentUser.id || podcast.user?.id === currentUser.id || currentUser.isAdmin);
+            const canDelete = currentUser && (comment.user.id === currentUser.id || podcast.user?.id === currentUser.id);
             return (
               <div key={comment.id} className="flex gap-3">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">

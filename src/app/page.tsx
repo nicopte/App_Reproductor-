@@ -98,13 +98,22 @@ export default function App() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-hidden pb-[136px] md:pb-[88px]">
-        <div className="flex items-center gap-3 px-4 md:px-6 py-3 sticky top-0 z-30 glass-subtle">
-          {showNavBack && (
-            <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={goBack} aria-label="Volver">
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          )}
-          <div className="flex-1" />
+        <div className="px-4 md:px-6 pt-4 pb-2 sticky top-0 z-30">
+          <div className="glass shadow-soft flex items-center gap-3 rounded-3xl px-3 py-2">
+            {showNavBack ? (
+              <Button variant="ghost" size="icon" className="w-9 h-9 flex-shrink-0 rounded-2xl" onClick={goBack} aria-label="Volver">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2 md:hidden pl-1">
+                <div className="w-8 h-8 rounded-2xl overflow-hidden shadow-glow shrink-0">
+                  <img src="/logo.jpg" alt="MP3DB" className="w-full h-full object-cover" />
+                </div>
+                <span className="font-display text-base font-semibold tracking-tight">MP3DB</span>
+              </div>
+            )}
+            <div className="flex-1" />
+          </div>
         </div>
         <ScrollArea className="flex-1 min-h-0">
           <div className="px-4 md:px-6 py-2 md:py-4">

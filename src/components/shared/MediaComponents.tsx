@@ -27,19 +27,19 @@ export function MediaCard({
   onPlay,
   className,
 }: MediaCardProps) {
-  const borderRadius = rounded ? 'rounded-xl' : 'rounded-lg';
+  const borderRadius = rounded ? 'rounded-2xl' : 'rounded-xl';
 
   return (
     <div
       className={cn(
-        'group relative flex flex-col gap-2 p-2 rounded-lg transition-all duration-200',
-        'hover:bg-accent/50 cursor-pointer',
+        'group relative flex flex-col gap-2.5 p-2.5 rounded-3xl bg-card shadow-card transition-all duration-300',
+        'hover:-translate-y-0.5 hover:shadow-glow cursor-pointer',
         className
       )}
       onClick={onClick}
     >
       {/* Image */}
-      <div className={cn('relative aspect-square overflow-hidden bg-muted shadow-lg', borderRadius)}>
+      <div className={cn('relative aspect-square overflow-hidden bg-muted', borderRadius)}>
         {image ? (
           <img
             src={image}
@@ -48,7 +48,7 @@ export function MediaCard({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-accent">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-accent/20">
             <div className="w-8 h-8 rounded-full bg-muted-foreground/20 flex items-center justify-center">
               <span className="text-lg font-bold text-muted-foreground/60">{title.charAt(0)}</span>
             </div>
@@ -60,8 +60,8 @@ export function MediaCard({
           <Button
             size="icon"
             className={cn(
-              'w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground',
-              'shadow-xl hover:scale-105 transition-transform'
+              'w-10 h-10 rounded-full bg-gradient-warm hover:opacity-90 text-primary-foreground',
+              'shadow-glow hover:scale-105 transition-transform'
             )}
             onClick={(e) => {
               e.stopPropagation();
@@ -77,8 +77,8 @@ export function MediaCard({
       </div>
 
       {/* Info */}
-      <div className="px-0.5 min-w-0">
-        <p className="text-sm font-medium truncate">{title}</p>
+      <div className="px-0.5 min-w-0 pb-1">
+        <p className="text-sm font-semibold truncate">{title}</p>
         {subtitle && (
           <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
         )}
@@ -116,7 +116,7 @@ export function SongRow({
   return (
     <div
       className={cn(
-        'grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[32px_1fr_1fr_1fr_80px] items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group',
+        'grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[32px_1fr_1fr_1fr_80px] items-center gap-3 px-3 py-2 rounded-2xl transition-all duration-150 group',
         'hover:bg-accent cursor-pointer',
         isActive && 'bg-accent/60'
       )}
@@ -263,7 +263,7 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
 export function GenreCard({ name, color }: { name: string; color: string }) {
   return (
     <div
-      className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group hover:scale-[1.02] transition-transform duration-200"
+      className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group hover:scale-[1.02] transition-transform duration-200"
       style={{ backgroundColor: color }}
     >
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />

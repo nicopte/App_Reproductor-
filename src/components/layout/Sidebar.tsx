@@ -39,10 +39,10 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-[280px] min-w-[280px] h-full pb-[88px] bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5">
-        <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+        <div className="w-9 h-9 rounded-2xl overflow-hidden flex items-center justify-center shadow-glow">
           <img src="/logo.jpg" alt={APP_NAME} className="w-full h-full object-cover" />
         </div>
-        <span className="text-lg font-bold tracking-tight">{APP_NAME}</span>
+        <span className="font-display text-lg font-semibold tracking-tight">{APP_NAME}</span>
       </div>
 
       {/* Main Nav */}
@@ -55,11 +55,10 @@ export function Sidebar() {
               key={item}
               onClick={() => navigate(item)}
               className={cn(
-                'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-                'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                'flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200',
                 currentView === item
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground/70'
+                  ? 'bg-gradient-warm text-primary-foreground shadow-glow'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/10 hover:text-sidebar-foreground'
               )}
             >
               <Icon className="w-5 h-5" />
@@ -100,8 +99,8 @@ export function Sidebar() {
                   else navigate('library');
                 }}
                 className={cn(
-                  'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-all duration-200',
-                  'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                  'flex items-center gap-3 w-full px-3 py-2 rounded-2xl text-sm transition-all duration-200',
+                  'hover:bg-sidebar-accent/10 hover:text-sidebar-foreground',
                   'text-sidebar-foreground/70'
                 )}
               >
@@ -156,27 +155,34 @@ export function MobileNav() {
   const { currentView, navigate } = useNavigationStore();
 
   return (
-    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 z-40 h-[64px] glass border-t border-border">
-      <div className="flex items-center justify-around h-full">
-        {(['home', 'search', 'library'] as const).map((item) => {
-          const Icon = NAV_ICONS[item];
-          const labels: Record<string, string> = { home: 'Inicio', search: 'Buscar', library: 'Biblioteca' };
-          return (
-            <button
-              key={item}
-              onClick={() => navigate(item)}
-              className={cn(
-                'flex flex-col items-center gap-1 px-4 py-1.5 rounded-lg transition-all duration-200',
-                currentView === item
-                  ? 'text-primary'
-                  : 'text-muted-foreground'
-              )}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{labels[item]}</span>
-            </button>
-          );
-        })}
+    <nav className="md:hidden fixed bottom-[76px] left-0 right-0 z-40 px-3">
+      <div className="glass shadow-card rounded-3xl px-2 py-2">
+        <div className="flex items-center justify-around">
+          {(['home', 'search', 'library'] as const).map((item) => {
+            const Icon = NAV_ICONS[item];
+            const labels: Record<string, string> = { home: 'Inicio', search: 'Buscar', library: 'Biblioteca' };
+            const active = currentView === item;
+            return (
+              <button
+                key={item}
+                onClick={() => navigate(item)}
+                className="flex flex-col items-center gap-0.5 rounded-2xl px-4 py-1.5 transition-all duration-200"
+              >
+                <span
+                  className={cn(
+                    'flex h-9 w-9 items-center justify-center rounded-2xl transition-all',
+                    active ? 'bg-gradient-warm text-primary-foreground shadow-glow' : 'text-muted-foreground'
+                  )}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={active ? 2.4 : 1.8} />
+                </span>
+                <span className={cn('text-[10px] font-medium', active ? 'text-foreground' : 'text-muted-foreground')}>
+                  {labels[item]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

@@ -20,8 +20,7 @@ export async function DELETE(
     }
 
     const podcast = await db.podcast.findUnique({ where: { id: podcastId } });
-    const user = await db.user.findUnique({ where: { id: userId }, select: { isAdmin: true } });
-    const canDelete = comment.userId === userId || podcast?.userId === userId || !!user?.isAdmin;
+    const canDelete = comment.userId === userId || podcast?.userId === userId;
 
     if (!canDelete) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });

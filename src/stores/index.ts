@@ -171,7 +171,7 @@ export const usePlayerStore = create<PlayerState>()(
 );
 
 interface AuthState {
-  user: { id: string; name: string; email: string; avatar?: string; isAdmin?: boolean } | null;
+  user: { id: string; name: string; email: string; avatar?: string } | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   checkSession: () => Promise<void>;

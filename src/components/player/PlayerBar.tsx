@@ -143,7 +143,7 @@ export function PlayerBar() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-[72px] md:bottom-[88px] right-0 z-50 w-full md:w-[380px] h-[60vh] glass border-l border-t border-border rounded-t-xl"
+            className="fixed bottom-[72px] md:bottom-[88px] right-0 z-50 w-full md:w-[380px] h-[60vh] glass shadow-card border-l border-t border-border rounded-t-3xl"
           >
             <div className="flex items-center justify-between p-4 border-b border-border/50">
               <h3 className="font-semibold text-sm">Cola de reproducción</h3>
@@ -193,11 +193,11 @@ export function PlayerBar() {
       </AnimatePresence>
 
       {/* Main Player Bar */}
-      <footer className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">
+      <footer className="fixed bottom-0 left-0 right-0 z-50 glass shadow-card rounded-t-3xl md:rounded-t-none border-t border-border">
         {/* Progress bar - thin line at top of player */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-border/30 cursor-pointer group">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-border/30 cursor-pointer group rounded-t-3xl md:rounded-t-none overflow-hidden">
           <div
-            className="h-full bg-primary transition-all duration-100 relative"
+            className="h-full bg-gradient-warm transition-all duration-100 relative"
             style={{ width: `${progress}%` }}
           >
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -233,7 +233,7 @@ export function PlayerBar() {
             </Button>
             <Button
               size="icon"
-              className="w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-10 h-10 rounded-full bg-gradient-warm hover:opacity-90 text-primary-foreground shadow-glow"
               onClick={togglePlay}
             >
               {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
@@ -291,7 +291,7 @@ export function PlayerBar() {
               </Button>
               <Button
                 size="icon"
-                className="w-10 h-10 rounded-full bg-white hover:bg-white/90 text-black shadow-lg hover:scale-105 transition-transform"
+                className="w-10 h-10 rounded-full bg-gradient-warm hover:opacity-90 text-primary-foreground shadow-glow hover:scale-105 transition-transform"
                 onClick={togglePlay}
               >
                 {isPlaying ? (
@@ -323,10 +323,10 @@ export function PlayerBar() {
               }}>
                 <div className="h-1 bg-muted rounded-full relative group-hover:h-1.5 transition-all">
                   <div
-                    className="h-full bg-white rounded-full relative"
+                    className="h-full bg-primary rounded-full relative"
                     style={{ width: `${progress}%` }}
                   >
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               </div>

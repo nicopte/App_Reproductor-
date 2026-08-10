@@ -4,7 +4,6 @@ export interface User {
   email: string;
   password: string;
   avatar?: string;
-  isAdmin?: boolean;
   createdAt: string;
   updatedAt: string;
 }
