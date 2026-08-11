@@ -107,7 +107,8 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
   if (!playlist) return <EmptyState title="Playlist no encontrada" description="La playlist que buscás no existe" />;
 
   const episodes = playlist.episodes?.map((e) => e.episode).filter(Boolean) || [];
-  const isOwner = currentUser && playlist.user?.id === currentUser.id;
+  const isOwner = !!currentUser && playlist.user?.id === currentUser.id;
+  const isAdmin = !!currentUser?.isAdmin;
 
   return (
     <div className="space-y-6 pb-4">
@@ -147,20 +148,20 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
               Reproducir
             </Button>
             {isOwner && (
-              <>
-                <Button variant="outline" size="lg" onClick={() => setShowAddEpisode(!showAddEpisode)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Agregar episodio
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  aria-label="Eliminar playlist"
-                >
-                  <Trash2 className="w-4 h-4 text-destructive" />
-                </Button>
-              </>
+              <Button variant="outline" size="lg" onClick={() => setShowAddEpisode(!showAddEpisode)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Agregar episodio
+              </Button>
+            )}
+            {(isOwner || isAdmin) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowDeleteConfirm(true)}
+                aria-label="Eliminar playlist"
+              >
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </Button>
             )}
           </div>
 

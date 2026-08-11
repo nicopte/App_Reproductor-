@@ -116,9 +116,10 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const playlist = await db.playlist.findUnique({
-      where: { id },
-    });
+    const [playlist, user] = await Promise.all([
+      db.playlist.findUnique({ where: { id } }),
+      db.user.findUnique({ where: { id: userId }, select: { isAdmin: true } }),
+    ]);
 
     if (!playlist) {
       return NextResponse.json(
@@ -127,7 +128,7 @@ export async function DELETE(
       );
     }
 
-    if (playlist.userId !== userId) {
+    if (playlist.userId !== userId && !user?.isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
