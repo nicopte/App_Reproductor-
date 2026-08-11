@@ -27,60 +27,47 @@ export function MediaCard({
   onPlay,
   className,
 }: MediaCardProps) {
-  const borderRadius = rounded ? 'rounded-2xl' : 'rounded-xl';
-
   return (
     <div
       className={cn(
-        'group relative flex flex-col gap-2.5 p-2.5 rounded-3xl bg-card shadow-card transition-all duration-300',
-        'hover:-translate-y-0.5 hover:shadow-glow cursor-pointer',
+        'group bg-card shadow-card hover:shadow-glow relative flex flex-col gap-2.5 rounded-3xl p-2.5 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer',
         className
       )}
       onClick={onClick}
     >
       {/* Image */}
-      <div className={cn('relative aspect-square overflow-hidden bg-muted', borderRadius)}>
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
         {image ? (
           <img
             src={image}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-accent/20">
-            <div className="w-8 h-8 rounded-full bg-muted-foreground/20 flex items-center justify-center">
-              <span className="text-lg font-bold text-muted-foreground/60">{title.charAt(0)}</span>
-            </div>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-soft">
+            <span className="font-display text-2xl font-semibold text-primary/40">{title.charAt(0)}</span>
           </div>
         )}
 
         {/* Play button overlay */}
-        <div className="absolute bottom-2 right-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
-          <Button
-            size="icon"
-            className={cn(
-              'w-10 h-10 rounded-full bg-gradient-warm hover:opacity-90 text-primary-foreground',
-              'shadow-glow hover:scale-105 transition-transform'
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay?.();
-            }}
-          >
-            <Play className="w-5 h-5 fill-current ml-0.5" />
-          </Button>
-        </div>
-
-        {/* Subtle gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        <button
+          className="bg-gradient-warm text-primary-foreground shadow-glow absolute bottom-2 right-2 grid h-10 w-10 translate-y-2 place-items-center rounded-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 active:scale-95"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPlay?.();
+          }}
+          aria-label="Reproducir"
+        >
+          <Play className="w-4 h-4 fill-current ml-0.5" />
+        </button>
       </div>
 
       {/* Info */}
-      <div className="px-0.5 min-w-0 pb-1">
+      <div className="px-1 pb-1 min-w-0">
         <p className="text-sm font-semibold truncate">{title}</p>
         {subtitle && (
-          <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
+          <p className="text-muted-foreground text-xs truncate">{subtitle}</p>
         )}
       </div>
     </div>
@@ -116,7 +103,7 @@ export function SongRow({
   return (
     <div
       className={cn(
-        'grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[32px_1fr_1fr_1fr_80px] items-center gap-3 px-3 py-2 rounded-2xl transition-all duration-150 group',
+        'grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[32px_1fr_1fr_1fr_80px] items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group',
         'hover:bg-accent cursor-pointer',
         isActive && 'bg-accent/60'
       )}
@@ -183,7 +170,7 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, showAll = false, onShowAll }: SectionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-xl md:text-2xl font-bold">{title}</h2>
+      <h2 className="font-display text-xl md:text-2xl">{title}</h2>
       {showAll && (
         <button
           onClick={onShowAll}
@@ -205,7 +192,7 @@ export function SkeletonGrid({ count = 6 }: SkeletonGridProps) {
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="space-y-2">
-          <div className="aspect-square rounded-lg bg-muted animate-pulse" />
+          <div className="aspect-square rounded-3xl bg-muted animate-pulse" />
           <div className="h-4 w-3/4 rounded bg-muted animate-pulse" />
           <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
         </div>
@@ -219,7 +206,7 @@ export function SkeletonList({ count = 5 }: { count?: number }) {
     <div className="space-y-2">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 px-3 py-2">
-          <div className="w-10 h-10 rounded bg-muted animate-pulse" />
+          <div className="w-10 h-10 rounded-2xl bg-muted animate-pulse" />
           <div className="flex-1 space-y-2">
             <div className="h-4 w-1/3 rounded bg-muted animate-pulse" />
             <div className="h-3 w-1/4 rounded bg-muted animate-pulse" />
@@ -245,14 +232,14 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
       {icon && (
-        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+        <div className="bg-gradient-soft w-16 h-16 rounded-full flex items-center justify-center mb-4">
           {icon}
         </div>
       )}
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <h3 className="font-display text-lg mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground max-w-[300px]">{description}</p>
       {action && (
-        <Button onClick={action.onClick} className="mt-4">
+        <Button onClick={action.onClick} className="mt-4 rounded-2xl bg-gradient-warm text-primary-foreground shadow-glow border-0">
           {action.label}
         </Button>
       )}
@@ -263,7 +250,7 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
 export function GenreCard({ name, color }: { name: string; color: string }) {
   return (
     <div
-      className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group hover:scale-[1.02] transition-transform duration-200"
+      className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group hover:scale-[1.02] transition-transform duration-200"
       style={{ backgroundColor: color }}
     >
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />

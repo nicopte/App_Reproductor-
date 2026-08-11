@@ -1,27 +1,23 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/layout/Providers";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "MP3DB — Tu Plataforma de Música",
-  description: "Escucha música, podcasts y más. Tu plataforma de streaming favorita.",
+  title: "MP3DB — Descubre y comparte podcasts",
+  description: "Sube, descubrí y escuchá podcasts en una experiencia cálida y minimalista.",
   icons: {
     icon: "/logo.jpg",
   },
@@ -35,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${fraunces.variable} ${inter.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${fraunces.variable} ${inter.variable} antialiased bg-background text-foreground`}
       >
         <Providers>
           {children}

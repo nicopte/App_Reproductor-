@@ -99,14 +99,14 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const podcast = await db.podcast.findUnique({
-      where: { id },
-      include: { episodes: true },
-    });
+    const [podcast, user] = await Promise.all([
+      db.podcast.findUnique({ where: { id }, include: { episodes: true } }),
+      db.user.findUnique({ where: { id: userId }, select: { isAdmin: true } }),
+    ]);
     if (!podcast) {
       return NextResponse.json({ error: 'Podcast not found' }, { status: 404 });
     }
-    if (podcast.userId !== userId) {
+    if (podcast.userId !== userId && !user?.isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

@@ -52,28 +52,23 @@ export function HomeView() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-card to-accent/30 p-6 md:p-10"
+        className="pt-2"
       >
-        <div className="relative z-10">
-          <h1 className="text-3xl md:text-5xl font-bold mb-3">
-            Buenas tardes
-          </h1>
-          <p className="text-muted-foreground text-sm md:text-base mb-6">
-            Descubrí podcasts nuevos y tus episodios recientes
-          </p>
-          {recentEpisodes.length > 0 && (
-            <Button
-              onClick={() => handlePlayAll(recentEpisodes)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all"
-              size="lg"
-            >
-              <Play className="w-5 h-5 fill-current mr-2" />
-              Reproducir todo
-            </Button>
-          )}
-        </div>
-        <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -left-10 -bottom-10 w-32 h-32 rounded-full bg-primary/5 blur-3xl" />
+        <p className="text-muted-foreground text-sm">Buenas tardes</p>
+        <h1 className="font-display mt-1 text-3xl leading-tight md:text-4xl">
+          Hoy hay <span className="text-primary italic">historias</span> nuevas
+          <br className="hidden sm:block" /> esperándote.
+        </h1>
+        {recentEpisodes.length > 0 && (
+          <Button
+            onClick={() => handlePlayAll(recentEpisodes)}
+            className="bg-gradient-warm text-primary-foreground shadow-glow border-0 rounded-2xl mt-5 hover:opacity-90 transition-all"
+            size="lg"
+          >
+            <Play className="w-5 h-5 fill-current mr-2" />
+            Reproducir todo
+          </Button>
+        )}
       </motion.div>
 
       {/* Episodios recientes */}

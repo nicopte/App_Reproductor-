@@ -18,15 +18,11 @@ import {
   ChevronUp,
   ChevronDown,
   ListMusic,
-  Heart,
   X,
-  GripVertical,
-  Radio,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
 
 export function PlayerBar() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -54,7 +50,6 @@ export function PlayerBar() {
 
   const [showQueue, setShowQueue] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [isFav, setIsFav] = useState(false);
 
   // Audio playback
   useEffect(() => {
@@ -113,14 +108,7 @@ export function PlayerBar() {
   );
 
   if (!currentSong) {
-    return (
-      <footer className="fixed bottom-0 left-0 right-0 z-50 h-[72px] glass border-t border-border flex items-center justify-center md:justify-between px-4 md:px-6">
-        <div className="flex items-center gap-3 text-muted-foreground text-sm">
-          <Music className="w-5 h-5" />
-          <span>Selecciona una canción para reproducir</span>
-        </div>
-      </footer>
-    );
+    return null;
   }
 
   const progress = currentSong.duration > 0 ? (currentTime / currentSong.duration) * 100 : 0;
@@ -143,11 +131,11 @@ export function PlayerBar() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-[72px] md:bottom-[88px] right-0 z-50 w-full md:w-[380px] h-[60vh] glass shadow-card border-l border-t border-border rounded-t-3xl"
+            className="fixed bottom-36 md:bottom-28 right-3 md:right-4 z-50 w-[calc(100%-1.5rem)] md:w-[380px] h-[55vh] glass shadow-card rounded-3xl overflow-hidden"
           >
             <div className="flex items-center justify-between p-4 border-b border-border/50">
-              <h3 className="font-semibold text-sm">Cola de reproducción</h3>
-              <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => setShowQueue(false)}>
+              <h3 className="font-display text-sm font-semibold">Cola de reproducción</h3>
+              <Button variant="ghost" size="icon" className="w-8 h-8 rounded-xl" onClick={() => setShowQueue(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
@@ -161,9 +149,9 @@ export function PlayerBar() {
                       setShowQueue(false);
                     }}
                     className={cn(
-                      'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left transition-colors',
-                      'hover:bg-accent',
-                      song.id === currentSong?.id && 'bg-accent/50'
+                      'flex items-center gap-3 w-full px-3 py-2 rounded-2xl text-left transition-colors',
+                      'hover:bg-accent/10',
+                      song.id === currentSong?.id && 'bg-accent/10'
                     )}
                   >
                     <span className="w-5 text-center text-xs text-muted-foreground">
@@ -192,26 +180,29 @@ export function PlayerBar() {
         )}
       </AnimatePresence>
 
-      {/* Main Player Bar */}
-      <footer className="fixed bottom-0 left-0 right-0 z-50 glass shadow-card rounded-t-3xl md:rounded-t-none border-t border-border">
-        {/* Progress bar - thin line at top of player */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-border/30 cursor-pointer group rounded-t-3xl md:rounded-t-none overflow-hidden">
+      {/* Main Player */}
+      <div className="fixed bottom-20 left-3 right-3 md:bottom-4 md:left-auto md:right-4 z-50 md:w-[420px]">
+        <div className="glass shadow-card overflow-hidden rounded-3xl">
+          {/* Progress bar */}
           <div
-            className="h-full bg-gradient-warm transition-all duration-100 relative"
-            style={{ width: `${progress}%` }}
+            className="relative h-1 w-full bg-border/40 cursor-pointer group"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const percent = (e.clientX - rect.left) / rect.width;
+              handleSeek([percent * currentSong.duration]);
+            }}
           >
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div
+              className="h-full bg-gradient-warm transition-all duration-100 relative"
+              style={{ width: `${progress}%` }}
+            >
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </div>
-        </div>
 
-        {/* Mobile layout */}
-        <div className="flex md:hidden items-center h-[72px] px-4 gap-3">
-          {/* Song info */}
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-3 flex-1 min-w-0"
-          >
-            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+          {/* Compact row (mobile + desktop) */}
+          <div className="flex items-center gap-3 p-2.5">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-muted flex-shrink-0">
               {currentSong.image ? (
                 <img src={currentSong.image} alt={currentSong.title} className="w-full h-full object-cover" />
               ) : (
@@ -221,149 +212,89 @@ export function PlayerBar() {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{currentSong.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{currentSong.podcast?.title}</p>
+              <div className="flex items-center gap-1.5">
+                {isPlaying && (
+                  <span className="flex items-end gap-0.5">
+                    <span className="bg-primary eq-bar h-3 w-0.5 rounded-full" style={{ animationDelay: '0ms' }} />
+                    <span className="bg-primary eq-bar h-3 w-0.5 rounded-full" style={{ animationDelay: '150ms' }} />
+                    <span className="bg-primary eq-bar h-3 w-0.5 rounded-full" style={{ animationDelay: '300ms' }} />
+                  </span>
+                )}
+                <p className="truncate text-sm font-semibold">{currentSong.title}</p>
+              </div>
+              <p className="text-muted-foreground truncate text-xs">{currentSong.podcast?.title}</p>
             </div>
-          </button>
-
-          {/* Controls */}
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="w-8 h-8" onClick={previousSong}>
-              <SkipBack className="w-4 h-4 fill-current" />
-            </Button>
-            <Button
-              size="icon"
-              className="w-10 h-10 rounded-full bg-gradient-warm hover:opacity-90 text-primary-foreground shadow-glow"
-              onClick={togglePlay}
-            >
-              {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
-            </Button>
-            <Button variant="ghost" size="icon" className="w-8 h-8" onClick={nextSong}>
-              <SkipForward className="w-4 h-4 fill-current" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Desktop layout */}
-        <div className="hidden md:grid grid-cols-3 items-center h-[88px] px-6">
-          {/* Left: Song info */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-14 h-14 rounded-lg overflow-hidden bg-muted flex-shrink-0 shadow-lg">
-              {currentSong.image ? (
-                <img src={currentSong.image} alt={currentSong.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Music className="w-6 h-6 text-muted-foreground" />
-                </div>
-              )}
-            </div>
-            <div className="min-w-0">
-              <button className="text-sm font-medium truncate block hover:underline max-w-[200px]">
-                {currentSong.title}
-              </button>
-              <button className="text-xs text-muted-foreground truncate block hover:underline max-w-[200px]">
-                {currentSong.podcast?.title}
-              </button>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 ml-1 flex-shrink-0"
-              onClick={() => setIsFav(!isFav)}
-            >
-              <Heart className={cn('w-4 h-4', isFav ? 'fill-primary text-primary' : 'text-muted-foreground')} />
-            </Button>
-          </div>
-
-          {/* Center: Controls + Progress */}
-          <div className="flex flex-col items-center gap-1.5 max-w-[600px] mx-auto w-full">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn('w-8 h-8', shuffle && 'text-primary')}
-                onClick={toggleShuffle}
-              >
-                <Shuffle className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="w-8 h-8" onClick={previousSong}>
-                <SkipBack className="w-4 h-4 fill-current" />
+            <div className="flex items-center gap-0.5">
+              <Button variant="ghost" size="icon" className="hidden sm:grid w-9 h-9 rounded-full text-muted-foreground hover:text-foreground" onClick={previousSong}>
+                <SkipBack className="w-4 h-4" />
               </Button>
               <Button
                 size="icon"
-                className="w-10 h-10 rounded-full bg-gradient-warm hover:opacity-90 text-primary-foreground shadow-glow hover:scale-105 transition-transform"
+                className="w-10 h-10 rounded-full bg-gradient-warm shadow-glow text-primary-foreground hover:opacity-90 active:scale-95 transition"
                 onClick={togglePlay}
               >
-                {isPlaying ? (
-                  <Pause className="w-5 h-5 fill-current" />
-                ) : (
-                  <Play className="w-5 h-5 fill-current ml-0.5" />
-                )}
+                {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
               </Button>
-              <Button variant="ghost" size="icon" className="w-8 h-8" onClick={nextSong}>
-                <SkipForward className="w-4 h-4 fill-current" />
+              <Button variant="ghost" size="icon" className="hidden sm:grid w-9 h-9 rounded-full text-muted-foreground hover:text-foreground" onClick={nextSong}>
+                <SkipForward className="w-4 h-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn('w-8 h-8', repeat !== 'off' && 'text-primary')}
-                onClick={toggleRepeat}
+                className="hidden md:grid w-9 h-9 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={() => setExpanded(!expanded)}
+                aria-label="Más opciones"
               >
-                {repeat === 'one' ? <Repeat1 className="w-4 h-4" /> : <Repeat className="w-4 h-4" />}
+                {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
               </Button>
-            </div>
-            <div className="flex items-center gap-2 w-full">
-              <span className="text-xs text-muted-foreground w-10 text-right tabular-nums">
-                {formatDuration(Math.floor(currentTime))}
-              </span>
-              <div className="flex-1 group cursor-pointer" onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                handleSeek([percent * currentSong.duration]);
-              }}>
-                <div className="h-1 bg-muted rounded-full relative group-hover:h-1.5 transition-all">
-                  <div
-                    className="h-full bg-primary rounded-full relative"
-                    style={{ width: `${progress}%` }}
-                  >
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              </div>
-              <span className="text-xs text-muted-foreground w-10 tabular-nums">
-                {formatDuration(currentSong.duration)}
-              </span>
             </div>
           </div>
 
-          {/* Right: Volume + Queue */}
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn('w-8 h-8', showQueue && 'text-primary')}
-              onClick={() => setShowQueue(!showQueue)}
-            >
-              <ListMusic className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-1.5 group">
-              <Button variant="ghost" size="icon" className="w-8 h-8" onClick={toggleMute}>
-                <VolumeIcon className="w-4 h-4" />
-              </Button>
-              <div className="w-24 group-hover:w-28 transition-all">
-                <Slider
-                  value={[isMuted ? 0 : volume * 100]}
-                  min={0}
-                  max={100}
-                  step={1}
-                  onValueChange={(v) => handleVolumeChange([v[0] / 100])}
-                  className="cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
+          {/* Expanded controls */}
+          <AnimatePresence>
+            {expanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden border-t border-border/50"
+              >
+                <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className={cn('w-8 h-8 rounded-full', shuffle && 'text-primary')} onClick={toggleShuffle}>
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className={cn('w-8 h-8 rounded-full', repeat !== 'off' && 'text-primary')} onClick={toggleRepeat}>
+                      {repeat === 'one' ? <Repeat1 className="w-3.5 h-3.5" /> : <Repeat className="w-3.5 h-3.5" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" className={cn('w-8 h-8 rounded-full', showQueue && 'text-primary')} onClick={() => setShowQueue(!showQueue)}>
+                      <ListMusic className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    {formatDuration(Math.floor(currentTime))} / {formatDuration(currentSong.duration)}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={toggleMute}>
+                      <VolumeIcon className="w-3.5 h-3.5" />
+                    </Button>
+                    <div className="w-20">
+                      <Slider
+                        value={[isMuted ? 0 : volume * 100]}
+                        min={0}
+                        max={100}
+                        step={1}
+                        onValueChange={(v) => handleVolumeChange([v[0] / 100])}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </footer>
+      </div>
     </>
 
   );

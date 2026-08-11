@@ -67,13 +67,19 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] }),
   });
 
+  const [deleteError, setDeleteError] = useState('');
   const deleteMutation = useMutation({
     mutationFn: (id: string) => fetch(`/api/playlists/${id}`, { method: 'DELETE' }),
-    onSuccess: (res) => {
-      if (!res.ok) return;
+    onSuccess: async (res) => {
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setDeleteError(body?.error || `Error al eliminar (código ${res.status})`);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ['playlists'] });
       navigate('library');
     },
+    onError: () => setDeleteError('No se pudo conectar con el servidor'),
   });
 
   const handlePlayAll = () => {
@@ -163,16 +169,19 @@ export function PlaylistDetailView({ playlistId }: { playlistId: string }) {
               <p className="text-sm">
                 ¿Eliminar la playlist <strong>{playlist.title}</strong>? Esta acción no se puede deshacer.
               </p>
+              {deleteError && (
+                <p className="text-sm text-destructive font-medium">{deleteError}</p>
+              )}
               <div className="flex gap-2">
                 <Button
                   variant="destructive"
                   size="sm"
                   disabled={deleteMutation.isPending}
-                  onClick={() => deleteMutation.mutate(playlist.id)}
+                  onClick={() => { setDeleteError(''); deleteMutation.mutate(playlist.id); }}
                 >
                   {deleteMutation.isPending ? 'Eliminando…' : 'Sí, eliminar'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)} disabled={deleteMutation.isPending}>
+                <Button variant="outline" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteError(''); }} disabled={deleteMutation.isPending}>
                   Cancelar
                 </Button>
               </div>
