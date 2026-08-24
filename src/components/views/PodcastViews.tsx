@@ -147,6 +147,49 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
     },
   });
 
+  // Edición de episodio
+  const [editingEpisodeId, setEditingEpisodeId] = useState<string | null>(null);
+  const [epEditTitle, setEpEditTitle] = useState('');
+  const [epEditDescription, setEpEditDescription] = useState('');
+  const [epEditImage, setEpEditImage] = useState('');
+  const [epEditError, setEpEditError] = useState('');
+
+  const startEditingEpisode = (episode: Episode) => {
+    setEditingEpisodeId(episode.id);
+    setEpEditTitle(episode.title);
+    setEpEditDescription(episode.description || '');
+    setEpEditImage(episode.image || '');
+    setEpEditError('');
+  };
+
+  const cancelEditingEpisode = () => {
+    setEditingEpisodeId(null);
+    setEpEditError('');
+  };
+
+  const updateEpisodeMutation = useMutation({
+    mutationFn: (episodeId: string) =>
+      fetch(`/api/podcasts/${podcastId}/episodes/${episodeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: epEditTitle.trim(),
+          description: epEditDescription.trim() || null,
+          image: epEditImage || null,
+        }),
+      }),
+    onSuccess: async (res) => {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setEpEditError(data.error || 'No se pudo guardar el episodio');
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: ['podcast', podcastId] });
+      setEditingEpisodeId(null);
+      setEpEditError('');
+    },
+  });
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -482,6 +525,65 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
         <div className="space-y-2">
           {podcast.episodes?.map((episode, idx) => {
             const isFavorite = favoriteEpisodeIds.has(episode.id);
+            const canManage = !!currentUser && (podcast.user?.id === currentUser.id || currentUser.isAdmin);
+            const isEditingThisEpisode = editingEpisodeId === episode.id;
+
+            if (isEditingThisEpisode) {
+              return (
+                <div key={episode.id} className="bg-card shadow-soft rounded-3xl p-4 space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <ImageUploader folder="podcasts" value={epEditImage} onChange={setEpEditImage} label="Portada (opcional)" />
+                    <div className="flex-1 space-y-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Título</label>
+                        <Input
+                          className="rounded-2xl"
+                          value={epEditTitle}
+                          onChange={(e) => setEpEditTitle(e.target.value)}
+                          placeholder="Título del episodio"
+                          aria-label="Título del episodio"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Descripción</label>
+                        <Textarea
+                          className="rounded-2xl"
+                          value={epEditDescription}
+                          onChange={(e) => setEpEditDescription(e.target.value)}
+                          placeholder="Descripción (opcional)"
+                          rows={2}
+                          aria-label="Descripción del episodio"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {epEditError && <p className="text-xs text-destructive">{epEditError}</p>}
+
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0"
+                      disabled={!epEditTitle.trim() || updateEpisodeMutation.isPending}
+                      onClick={() => updateEpisodeMutation.mutate(episode.id)}
+                    >
+                      {updateEpisodeMutation.isPending ? 'Guardando…' : 'Guardar cambios'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={cancelEditingEpisode}
+                      disabled={updateEpisodeMutation.isPending}
+                    >
+                      <XIcon className="w-4 h-4 mr-1" />
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              );
+            }
+
             return (
             <div key={episode.id}>
             <div
@@ -531,7 +633,20 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                   </button>
                 </>
               )}
-              {currentUser && (podcast.user?.id === currentUser.id || currentUser.isAdmin) && (
+              {canManage && (
+                <button
+                  type="button"
+                  aria-label="Editar episodio"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startEditingEpisode(episode);
+                  }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary transition-all shrink-0"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              )}
+              {canManage && (
                 <button
                   type="button"
                   aria-label="Eliminar episodio"
