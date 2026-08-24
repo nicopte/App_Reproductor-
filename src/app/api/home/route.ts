@@ -3,18 +3,7 @@ import { db } from '@/lib/db';
 
 export async function GET() {
   try {
-    const [featuredPlaylists, recentPodcasts, recentEpisodes, ratingGroups] = await Promise.all([
-      // Featured playlists (public playlists, limited to 6)
-      db.playlist.findMany({
-        where: { isPublic: true },
-        take: 6,
-        include: {
-          _count: { select: { episodes: true } },
-          user: { select: { id: true, name: true } },
-        },
-        orderBy: { updatedAt: 'desc' },
-      }),
-
+    const [recentPodcasts, recentEpisodes, ratingGroups] = await Promise.all([
       // Recent podcasts (latest 8)
       db.podcast.findMany({
         take: 8,
@@ -64,7 +53,6 @@ export async function GET() {
       .filter(Boolean);
 
     return NextResponse.json({
-      featuredPlaylists: featuredPlaylists.map((p) => ({ ...p, episodeCount: p._count.episodes })),
       recentPodcasts: recentPodcasts.map((p) => ({ ...p, episodeCount: p._count.episodes })),
       recentEpisodes,
       topRatedPodcasts,

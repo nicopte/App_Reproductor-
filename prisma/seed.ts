@@ -11,10 +11,8 @@ async function seed() {
   await prisma.podcastRating.deleteMany();
   await prisma.reproduction.deleteMany();
   await prisma.favorite.deleteMany();
-  await prisma.playlistEpisode.deleteMany();
   await prisma.episodeCategory.deleteMany();
   await prisma.episode.deleteMany();
-  await prisma.playlist.deleteMany();
   await prisma.podcast.deleteMany();
   await prisma.category.deleteMany();
   await prisma.user.deleteMany();
@@ -94,35 +92,6 @@ async function seed() {
     episodes.push(episode);
   }
 
-  // Create Playlists
-  const playlists = await Promise.all([
-    prisma.playlist.create({
-      data: {
-        title: 'Mis Favoritos',
-        description: 'Los episodios que más me gustan',
-        userId: user.id,
-      },
-    }),
-    prisma.playlist.create({
-      data: {
-        title: 'Para escuchar en el auto',
-        description: 'Episodios cortos para el viaje',
-        userId: user.id,
-      },
-    }),
-  ]);
-
-  // Add episodes to playlists
-  await prisma.playlistEpisode.createMany({
-    data: [
-      { playlistId: playlists[0].id, episodeId: episodes[0].id, position: 1 },
-      { playlistId: playlists[0].id, episodeId: episodes[3].id, position: 2 },
-      { playlistId: playlists[0].id, episodeId: episodes[5].id, position: 3 },
-      { playlistId: playlists[1].id, episodeId: episodes[1].id, position: 1 },
-      { playlistId: playlists[1].id, episodeId: episodes[6].id, position: 2 },
-    ],
-  });
-
   // Create Favorites
   await prisma.favorite.createMany({
     data: [
@@ -144,7 +113,6 @@ async function seed() {
   console.log('✅ Seed completed successfully!');
   console.log(`   - ${podcasts.length} podcasts`);
   console.log(`   - ${episodeData.length} episodes`);
-  console.log(`   - ${playlists.length} playlists`);
   console.log(`   - ${categories.length} categories`);
 }
 

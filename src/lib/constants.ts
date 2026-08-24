@@ -8,7 +8,6 @@ export const NAV_ITEMS = [
 ] as const;
 
 export const LIBRARY_ITEMS = [
-  { id: 'playlists', label: 'Playlists', icon: 'ListMusic' },
   { id: 'favorites', label: 'Favoritos', icon: 'Heart' },
   { id: 'podcasts', label: 'Podcasts', icon: 'Podcast' },
   { id: 'history', label: 'Historial', icon: 'Clock' },

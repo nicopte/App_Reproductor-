@@ -11,7 +11,7 @@ interface MediaCardProps {
   subtitle?: string;
   image?: string;
   rounded?: boolean;
-  type: 'playlist' | 'podcast';
+  type: 'podcast';
   onClick?: () => void;
   onPlay?: () => void;
   className?: string;

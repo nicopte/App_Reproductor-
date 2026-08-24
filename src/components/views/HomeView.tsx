@@ -11,7 +11,7 @@ import {
 import { Play, Podcast as PodcastIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import type { Episode, Playlist, Podcast } from '@/types';
+import type { Episode, Podcast } from '@/types';
 
 export function HomeView() {
   const { data, isLoading } = useQuery({
@@ -42,7 +42,6 @@ export function HomeView() {
   }
 
   const recentEpisodes: Episode[] = data?.recentEpisodes || [];
-  const featuredPlaylists: Playlist[] = data?.featuredPlaylists || [];
   const recentPodcasts: Podcast[] = data?.recentPodcasts || [];
 
   return (
@@ -126,30 +125,6 @@ export function HomeView() {
                 image={podcast.image}
                 type="podcast"
                 onClick={() => navigate('podcast-detail', { id: podcast.id })}
-              />
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Playlists destacadas */}
-      {featuredPlaylists.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <SectionHeader title="Playlists destacadas" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {featuredPlaylists.map((playlist) => (
-              <MediaCard
-                key={playlist.id}
-                id={playlist.id}
-                title={playlist.title}
-                subtitle={playlist.description || `${playlist.episodeCount || 0} episodios`}
-                image={playlist.image}
-                type="playlist"
-                onClick={() => navigate('playlist-detail', { id: playlist.id })}
               />
             ))}
           </div>

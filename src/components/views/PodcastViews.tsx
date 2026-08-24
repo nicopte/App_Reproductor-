@@ -5,10 +5,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigationStore, usePlayerStore, useAuthStore } from '@/stores';
 import { MediaCard, SectionHeader, SkeletonGrid, EmptyState } from '@/components/shared/MediaComponents';
 import { motion } from 'framer-motion';
-import { Podcast, Mic, Clock, Plus, Trash2, Star, MessageCircle, Heart, ListMusic, Pencil, X as XIcon } from 'lucide-react';
+import { Podcast, Mic, Clock, Plus, Trash2, Star, MessageCircle, Heart, Pencil, X as XIcon } from 'lucide-react';
 import { formatDuration, formatDate } from '@/lib/constants';
 import { cn } from '@/lib/constants';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,11 +33,14 @@ export function PodcastsView() {
     <div className="space-y-6 pb-4">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Podcasts</h1>
+          <h1 className="font-display text-3xl md:text-4xl mb-2">Podcasts</h1>
           <p className="text-muted-foreground text-sm">Descubre programas y episodios</p>
         </div>
         {isAuthenticated && (
-          <Button onClick={() => navigate('create-podcast')} className="gap-1.5 shrink-0">
+          <Button
+            onClick={() => navigate('create-podcast')}
+            className="gap-1.5 shrink-0 rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0 hover:scale-[1.02] transition-transform"
+          >
             <Plus className="w-4 h-4" />
             Crear podcast
           </Button>
@@ -135,23 +137,6 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
         body: JSON.stringify({ episodeId }),
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favorites'] }),
-  });
-
-  const { data: myPlaylists } = useQuery<{ id: string; title: string }[]>({
-    queryKey: ['playlists'],
-    queryFn: () => fetch('/api/playlists').then((r) => r.json()),
-    enabled: !!currentUser,
-  });
-  const [addToPlaylistEpisodeId, setAddToPlaylistEpisodeId] = useState<string | null>(null);
-
-  const addToPlaylistMutation = useMutation({
-    mutationFn: ({ playlistId, episodeId }: { playlistId: string; episodeId: string }) =>
-      fetch(`/api/playlists/${playlistId}/episodes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ episodeId }),
-      }),
-    onSuccess: () => setAddToPlaylistEpisodeId(null),
   });
 
   const deleteEpisodeMutation = useMutation({
@@ -264,21 +249,21 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
     return (
       <div className="space-y-6">
         <div className="flex items-end gap-6">
-          <div className="w-48 h-48 rounded-xl bg-muted animate-pulse" />
+          <div className="w-48 h-48 rounded-3xl bg-muted animate-pulse" />
           <div className="space-y-3">
-            <div className="h-4 w-20 rounded bg-muted animate-pulse" />
-            <div className="h-8 w-64 rounded bg-muted animate-pulse" />
+            <div className="h-4 w-20 rounded-full bg-muted animate-pulse" />
+            <div className="h-8 w-64 rounded-full bg-muted animate-pulse" />
           </div>
         </div>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded bg-muted animate-pulse" />
+            <div key={i} className="bg-card shadow-soft flex items-center gap-3 rounded-2xl p-4">
+              <div className="w-10 h-10 rounded-2xl bg-muted animate-pulse" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
-                <div className="h-3 w-1/3 rounded bg-muted animate-pulse" />
+                <div className="h-4 w-2/3 rounded-full bg-muted animate-pulse" />
+                <div className="h-3 w-1/3 rounded-full bg-muted animate-pulse" />
               </div>
-              <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+              <div className="h-4 w-16 rounded-full bg-muted animate-pulse" />
             </div>
           ))}
         </div>
@@ -301,25 +286,27 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
     <div className="space-y-6 pb-4">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row items-start md:items-end gap-6">
-        <div className="w-48 h-48 md:w-56 md:h-56 rounded-xl overflow-hidden bg-muted shadow-2xl flex-shrink-0">
+        <div className="bg-card shadow-card animate-float w-48 h-48 md:w-56 md:h-56 rounded-3xl overflow-hidden flex-shrink-0">
           {podcast.image ? (
             <img src={podcast.image} alt={podcast.title} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Podcast className="w-16 h-16 text-muted-foreground/40" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-soft">
+              <Podcast className="w-16 h-16 text-primary/40" />
             </div>
           )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
-            <Badge variant="secondary" className="mb-2">Podcast</Badge>
+            <span className="bg-card shadow-soft inline-block rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider mb-2">
+              Podcast
+            </span>
             {currentUser && !isEditing && (isOwner || isAdmin) && (
               <div className="flex items-center gap-1 shrink-0">
-                {isOwner && (
+                {(isOwner || isAdmin) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-1.5"
+                    className="gap-1.5 rounded-full bg-card shadow-soft hover:shadow-card"
                     onClick={() => {
                       setEditTitle(podcast.title);
                       setEditDescription(podcast.description || '');
@@ -335,7 +322,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5"
+                  className="text-destructive hover:text-destructive rounded-full bg-card shadow-soft hover:bg-destructive/10 gap-1.5"
                   onClick={() => setShowDeleteConfirm(true)}
                   aria-label="Eliminar podcast"
                 >
@@ -347,28 +334,29 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
           </div>
 
           {isEditing ? (
-            <div className="space-y-3 max-w-xl">
+            <div className="bg-card shadow-soft rounded-3xl p-4 space-y-3 max-w-xl">
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Portada</label>
                 <ImageUploader folder="podcasts" value={editImage} onChange={(url) => setEditImage(url)} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Título</label>
-                <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Título del podcast" />
+                <Input className="rounded-2xl" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Título del podcast" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Descripción</label>
-                <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} placeholder="Descripción" />
+                <Textarea className="rounded-2xl" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} placeholder="Descripción" />
               </div>
               <div className="flex gap-2">
                 <Button
                   size="sm"
+                  className="rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0"
                   disabled={!editTitle.trim() || updatePodcastMutation.isPending}
                   onClick={() => updatePodcastMutation.mutate()}
                 >
                   {updatePodcastMutation.isPending ? 'Guardando…' : 'Guardar cambios'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={updatePodcastMutation.isPending}>
+                <Button variant="outline" size="sm" className="rounded-full" onClick={() => setIsEditing(false)} disabled={updatePodcastMutation.isPending}>
                   <XIcon className="w-4 h-4 mr-1" />
                   Cancelar
                 </Button>
@@ -376,9 +364,9 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
             </div>
           ) : (
             <>
-              <h1 className="text-3xl md:text-5xl font-bold mb-2">{podcast.title}</h1>
+              <h1 className="font-display text-3xl md:text-5xl leading-tight mb-2">{podcast.title}</h1>
               {podcast.description && (
-                <p className="text-muted-foreground text-sm max-w-xl">{podcast.description}</p>
+                <p className="text-muted-foreground text-sm max-w-xl leading-relaxed">{podcast.description}</p>
               )}
               <p className="text-sm text-muted-foreground mt-2">
                 {podcast.episodes?.length || 0} episodios
@@ -387,7 +375,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
           )}
 
           {showDeleteConfirm && (
-            <div className="mt-4 p-4 rounded-lg border border-destructive/30 bg-destructive/5 space-y-3 max-w-xl">
+            <div className="bg-card shadow-soft mt-4 p-4 rounded-3xl border border-destructive/20 space-y-3 max-w-xl">
               <p className="text-sm">
                 ¿Eliminar <strong>{podcast.title}</strong>? Esto borra el podcast y sus{' '}
                 {podcast.episodes?.length || 0} episodio(s) de forma permanente.
@@ -396,6 +384,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                 <Button
                   variant="destructive"
                   size="sm"
+                  className="rounded-full"
                   disabled={deletePodcastMutation.isPending}
                   onClick={() => deletePodcastMutation.mutate()}
                 >
@@ -404,6 +393,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="rounded-full"
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={deletePodcastMutation.isPending}
                 >
@@ -418,12 +408,15 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
       {/* Episodes */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Episodios</h2>
+          <h2 className="font-display text-xl md:text-2xl">Episodios</h2>
           {currentUser && podcast.user?.id === currentUser.id && (
             <Button
               variant={showAddEpisode ? 'outline' : 'default'}
               size="sm"
-              className="gap-1.5"
+              className={cn(
+                'gap-1.5 rounded-full',
+                !showAddEpisode && 'bg-gradient-warm text-primary-foreground shadow-glow border-0'
+              )}
               onClick={() => setShowAddEpisode((v) => !v)}
             >
               <Plus className="w-4 h-4" />
@@ -433,7 +426,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
         </div>
 
         {showAddEpisode && (
-          <form onSubmit={handleAddEpisode} className="mb-6 p-4 rounded-lg border border-border bg-muted/30 space-y-4">
+          <form onSubmit={handleAddEpisode} className="bg-card shadow-soft mb-6 p-4 rounded-3xl space-y-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <ImageUploader folder="podcasts" value={epImage} onChange={setEpImage} label="Portada (opcional)" />
               <div className="flex-1 space-y-3">
@@ -441,6 +434,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                   <label htmlFor="ep-title" className="text-sm font-medium mb-1.5 block">Título *</label>
                   <Input
                     id="ep-title"
+                    className="rounded-2xl"
                     value={epTitle}
                     onChange={(e) => setEpTitle(e.target.value)}
                     placeholder="Título del episodio"
@@ -451,6 +445,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                   <label htmlFor="ep-description" className="text-sm font-medium mb-1.5 block">Descripción</label>
                   <Textarea
                     id="ep-description"
+                    className="rounded-2xl"
                     value={epDescription}
                     onChange={(e) => setEpDescription(e.target.value)}
                     placeholder="Descripción (opcional)"
@@ -473,7 +468,11 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
             {epError && <p className="text-xs text-destructive">{epError}</p>}
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={addEpisodeMutation.isPending} className="flex-1">
+              <Button
+                type="submit"
+                disabled={addEpisodeMutation.isPending}
+                className="flex-1 rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0"
+              >
                 {addEpisodeMutation.isPending ? 'Publicando...' : 'Publicar episodio'}
               </Button>
             </div>
@@ -486,22 +485,19 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
             return (
             <div key={episode.id}>
             <div
-              className={cn(
-                'flex items-center gap-4 p-3 rounded-lg transition-colors cursor-pointer group',
-                'hover:bg-accent'
-              )}
+              className="bg-card shadow-soft hover:shadow-card flex items-center gap-4 p-3 rounded-3xl transition-all cursor-pointer group"
               onClick={() => handlePlayEpisode(episode)}
             >
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0 relative">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden bg-muted flex-shrink-0 relative">
                 {episode.image ? (
                   <img src={episode.image} alt={episode.title} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Mic className="w-5 h-5 text-muted-foreground" />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-soft">
+                    <Mic className="w-5 h-5 text-primary/50" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Play className="w-5 h-5 fill-current text-white" />
+                <div className="bg-gradient-warm absolute inset-0 opacity-0 group-hover:opacity-90 transition-opacity flex items-center justify-center">
+                  <Play className="w-5 h-5 fill-current text-primary-foreground" />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
@@ -527,22 +523,11 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                       toggleFavoriteMutation.mutate(episode.id);
                     }}
                     className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0',
+                      'w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0',
                       isFavorite ? 'text-primary' : 'text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary'
                     )}
                   >
                     <Heart className={cn('w-4 h-4', isFavorite && 'fill-current')} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Agregar a playlist"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAddToPlaylistEpisodeId(addToPlaylistEpisodeId === episode.id ? null : episode.id);
-                    }}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary transition-all shrink-0"
-                  >
-                    <ListMusic className="w-4 h-4" />
                   </button>
                 </>
               )}
@@ -554,32 +539,12 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                     e.stopPropagation();
                     deleteEpisodeMutation.mutate(episode.id);
                   }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground transition-all shrink-0"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground transition-all shrink-0"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}
             </div>
-            {addToPlaylistEpisodeId === episode.id && (
-              <div className="ml-16 mb-2 p-3 rounded-lg border border-border bg-card space-y-1 max-w-xs">
-                {myPlaylists && myPlaylists.length > 0 ? (
-                  myPlaylists.map((pl) => (
-                    <button
-                      key={pl.id}
-                      onClick={() => addToPlaylistMutation.mutate({ playlistId: pl.id, episodeId: episode.id })}
-                      disabled={addToPlaylistMutation.isPending}
-                      className="block w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent transition-colors disabled:opacity-50"
-                    >
-                      {pl.title}
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-xs text-muted-foreground px-2 py-1">
-                    No tenés playlists todavía. Creá una desde tu Biblioteca.
-                  </p>
-                )}
-              </div>
-            )}
             </div>
             );
           })}
@@ -587,8 +552,8 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
       </section>
 
       {/* Calificación */}
-      <section className="max-w-xl">
-        <h2 className="text-xl font-bold mb-3">Calificación</h2>
+      <section className="bg-card shadow-soft max-w-xl rounded-3xl p-5">
+        <h2 className="font-display text-xl mb-3">Calificación</h2>
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => {
@@ -625,9 +590,9 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
       </section>
 
       {/* Comentarios */}
-      <section className="max-w-xl">
-        <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
-          <MessageCircle className="w-5 h-5" />
+      <section className="max-w-xl space-y-4">
+        <h2 className="font-display flex items-center gap-2 text-xl">
+          <MessageCircle className="text-primary w-4 h-4" />
           Comentarios {comments && comments.length > 0 ? `(${comments.length})` : ''}
         </h2>
 
@@ -637,7 +602,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
               e.preventDefault();
               if (commentText.trim()) addCommentMutation.mutate();
             }}
-            className="mb-4 space-y-2"
+            className="bg-card shadow-soft rounded-2xl p-2 space-y-2"
           >
             <Textarea
               value={commentText}
@@ -645,24 +610,32 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
               placeholder="Escribí un comentario..."
               maxLength={1000}
               rows={3}
+              className="rounded-xl border-0 bg-transparent shadow-none focus-visible:ring-0"
             />
-            <Button type="submit" size="sm" disabled={!commentText.trim() || addCommentMutation.isPending}>
-              {addCommentMutation.isPending ? 'Publicando…' : 'Comentar'}
-            </Button>
+            <div className="flex justify-end px-1 pb-1">
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!commentText.trim() || addCommentMutation.isPending}
+                className="rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0"
+              >
+                {addCommentMutation.isPending ? 'Publicando…' : 'Comentar'}
+              </Button>
+            </div>
           </form>
         ) : (
-          <p className="text-xs text-muted-foreground mb-4">Iniciá sesión para dejar un comentario.</p>
+          <p className="text-xs text-muted-foreground">Iniciá sesión para dejar un comentario.</p>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {comments?.length === 0 && (
             <p className="text-sm text-muted-foreground">Todavía no hay comentarios. ¡Sé el primero!</p>
           )}
           {comments?.map((comment) => {
             const canDelete = currentUser && (comment.user.id === currentUser.id || podcast.user?.id === currentUser.id || currentUser.isAdmin);
             return (
-              <div key={comment.id} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">
+              <div key={comment.id} className="bg-card shadow-soft flex gap-3 rounded-2xl p-4">
+                <div className="w-8 h-8 rounded-full bg-gradient-soft flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">
                   {comment.user.avatar ? (
                     <img src={comment.user.avatar} alt={comment.user.name} className="w-full h-full object-cover" />
                   ) : (
@@ -674,7 +647,7 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
                     <span className="text-sm font-medium">{comment.user.name}</span>
                     <span className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</span>
                   </div>
-                  <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">{comment.content}</p>
+                  <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words leading-relaxed">{comment.content}</p>
                 </div>
                 {canDelete && (
                   <button

@@ -9,26 +9,6 @@ export interface User {
   updatedAt: string;
 }
 
-export interface Playlist {
-  id: string;
-  title: string;
-  description?: string;
-  image?: string;
-  isPublic: boolean;
-  userId: string;
-  user?: { id: string; name: string; avatar?: string };
-  episodeCount?: number;
-  episodes?: (PlaylistEpisode & { episode: Episode })[];
-}
-
-export interface PlaylistEpisode {
-  id: string;
-  playlistId: string;
-  episodeId: string;
-  position: number;
-  addedAt: string;
-}
-
 export interface Favorite {
   id: string;
   userId: string;
@@ -74,7 +54,7 @@ export interface Category {
   name: string;
 }
 
-export type ViewType = 'home' | 'search' | 'library' | 'podcasts' | 'podcast-detail' | 'playlist-detail' | 'create-playlist' | 'create-podcast' | 'favorites' | 'profile' | 'login' | 'register';
+export type ViewType = 'home' | 'search' | 'library' | 'podcasts' | 'podcast-detail' | 'create-podcast' | 'favorites' | 'profile' | 'login' | 'register';
 
 // El reproductor toma episodios de podcast. Se mantiene el nombre
 // "currentSong"/"playSong" internamente para no tocar decenas de archivos,

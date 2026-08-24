@@ -7,8 +7,6 @@ import { HomeView } from '@/components/views/HomeView';
 import { SearchView } from '@/components/views/SearchView';
 import { LibraryView } from '@/components/views/LibraryView';
 import { PodcastsView, PodcastDetailView } from '@/components/views/PodcastViews';
-import { PlaylistDetailView } from '@/components/views/PlaylistDetailView';
-import { CreatePlaylistView } from '@/components/views/CreatePlaylistView';
 import { CreatePodcastView } from '@/components/views/CreatePodcastView';
 import { LoginView } from '@/components/views/AuthViews';
 import { FavoritesView } from '@/components/views/FavoritesView';
@@ -63,8 +61,6 @@ export default function App() {
       case 'library': return <LibraryView />;
       case 'podcasts': return <PodcastsView />;
       case 'podcast-detail': return <PodcastDetailView podcastId={viewParams.id || ''} />;
-      case 'playlist-detail': return <PlaylistDetailView playlistId={viewParams.id || ''} />;
-      case 'create-playlist': return <CreatePlaylistView />;
       case 'create-podcast': return <CreatePodcastView />;
       case 'favorites': return <FavoritesView />;
       case 'login':

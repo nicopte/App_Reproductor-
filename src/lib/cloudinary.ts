@@ -7,8 +7,8 @@ cloudinary.config({
   secure: true,
 });
 
-/** Folders correspond to the entity types listed in the spec: songs, albums, artists, podcasts, playlists, users. */
-export type CloudinaryFolder = 'podcasts' | 'playlists' | 'users';
+/** Folders correspond to the entity types listed in the spec: podcasts, users. */
+export type CloudinaryFolder = 'podcasts' | 'users';
 
 const APP_ROOT_FOLDER = 'mp3db';
 

@@ -4,7 +4,6 @@ import {
   Home,
   Search,
   Library,
-  ListMusic,
   Heart,
   Podcast,
   Clock,
@@ -23,8 +22,7 @@ const NAV_ICONS: Record<string, typeof Home> = {
   library: Library,
 };
 
-const LIB_ICONS: Record<string, typeof ListMusic> = {
-  playlists: ListMusic,
+const LIB_ICONS: Record<string, typeof Heart> = {
   favorites: Heart,
   podcasts: Podcast,
   history: Clock,
@@ -78,8 +76,8 @@ export function Sidebar() {
             variant="ghost"
             size="icon"
             className="w-7 h-7 rounded-xl hover:bg-muted"
-            onClick={() => navigate('create-playlist')}
-            aria-label="Crear playlist"
+            onClick={() => navigate('create-podcast')}
+            aria-label="Crear podcast"
           >
             <Plus className="w-4 h-4" />
           </Button>
