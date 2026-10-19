@@ -19,7 +19,7 @@ import { useEffect, useRef } from 'react';
 export default function App() {
   const { currentView, viewParams, goBack } = useNavigationStore();
   const currentSong = usePlayerStore((s) => s.currentSong);
-  const { isAuthenticated, isLoading, checkSession } = useAuthStore();
+  const { isLoading, checkSession } = useAuthStore();
   const hasLogged = useRef(false);
 
   useEffect(() => {
@@ -78,14 +78,6 @@ export default function App() {
           </div>
           <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="bg-gradient-glow h-screen overflow-y-auto bg-background">
-        <LoginView />
       </div>
     );
   }

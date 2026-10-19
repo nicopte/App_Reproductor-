@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigationStore } from '@/stores';
+import { useAuthStore, useNavigationStore } from '@/stores';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,7 @@ import { ImageUploader } from '@/components/shared/ImageUploader';
 
 export function CreatePodcastView() {
   const navigate = useNavigationStore((s) => s.navigate);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -46,6 +47,21 @@ export function CreatePodcastView() {
       image: image || undefined,
     });
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-lg mx-auto rounded-3xl bg-card p-8 text-center shadow-soft">
+        <h1 className="font-display text-2xl font-semibold">Iniciá sesión para subir un podcast</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Podés escuchar todos los podcasts sin iniciar sesión.</p>
+        <Button
+          className="mt-5 rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0"
+          onClick={() => navigate('login', { returnTo: 'create-podcast' })}
+        >
+          Iniciar sesión
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto pb-4">

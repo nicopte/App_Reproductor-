@@ -22,7 +22,6 @@ interface PodcastWithEpisodes extends PodcastType {
 
 export function PodcastsView() {
   const navigate = useNavigationStore((s) => s.navigate);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const { data: podcasts, isLoading } = useQuery<PodcastType[]>({
     queryKey: ['podcasts'],
@@ -36,15 +35,13 @@ export function PodcastsView() {
           <h1 className="font-display text-3xl md:text-4xl mb-2">Podcasts</h1>
           <p className="text-muted-foreground text-sm">Descubre programas y episodios</p>
         </div>
-        {isAuthenticated && (
-          <Button
-            onClick={() => navigate('create-podcast')}
-            className="gap-1.5 shrink-0 rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0 hover:scale-[1.02] transition-transform"
-          >
-            <Plus className="w-4 h-4" />
-            Crear podcast
-          </Button>
-        )}
+        <Button
+          onClick={() => navigate('create-podcast')}
+          className="gap-1.5 shrink-0 rounded-full bg-gradient-warm text-primary-foreground shadow-glow border-0 hover:scale-[1.02] transition-transform"
+        >
+          <Plus className="w-4 h-4" />
+          Crear podcast
+        </Button>
       </motion.div>
 
       {isLoading ? (
@@ -739,7 +736,14 @@ export function PodcastDetailView({ podcastId }: { podcastId: string }) {
             </div>
           </form>
         ) : (
-          <p className="text-xs text-muted-foreground">Iniciá sesión para dejar un comentario.</p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => navigate('login', { returnTo: 'podcast-detail', id: podcastId })}
+          >
+            Iniciá sesión para comentar
+          </Button>
         )}
 
         <div className="space-y-3">

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuthStore } from '@/stores';
+import { useAuthStore, useNavigationStore } from '@/stores';
+import type { ViewType } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,9 @@ import { useMutation } from '@tanstack/react-query';
 
 export function LoginView() {
   const { login, register } = useAuthStore();
+  const { navigate, viewParams } = useNavigationStore();
+  const returnTo = (viewParams.returnTo as ViewType | undefined) ?? 'home';
+  const returnParams = viewParams.id ? { id: viewParams.id } : {};
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +26,7 @@ export function LoginView() {
     mutationFn: () => login(email, password),
     onSuccess: (success) => {
       if (!success) setError('Usuario o contraseña incorrectos');
+      else navigate(returnTo, returnParams);
     },
     onError: () => setError('Error al iniciar sesión'),
   });
@@ -30,6 +35,7 @@ export function LoginView() {
     mutationFn: () => register(name, email, password),
     onSuccess: (success) => {
       if (!success) setError('No se pudo crear la cuenta (¿el email ya está en uso?)');
+      else navigate(returnTo, returnParams);
     },
     onError: () => setError('Error al crear la cuenta'),
   });
@@ -59,7 +65,9 @@ export function LoginView() {
   const handleQuickLogin = () => {
     setEmail('demo@mp3db.com');
     setPassword('demo123');
-    login('demo@mp3db.com', 'demo123');
+    login('demo@mp3db.com', 'demo123').then((success) => {
+      if (success) navigate(returnTo, returnParams);
+    });
   };
 
   return (
