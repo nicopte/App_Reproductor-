@@ -15,7 +15,7 @@ export function LoginView() {
   const { login, register } = useAuthStore();
   const { navigate, viewParams } = useNavigationStore();
   const returnTo = (viewParams.returnTo as ViewType | undefined) ?? 'home';
-  const returnParams = viewParams.id ? { id: viewParams.id } : {};
+  const returnParams: Record<string, string> = viewParams.id ? { id: viewParams.id } : {};
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
